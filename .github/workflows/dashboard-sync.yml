@@ -20,4 +20,4 @@ jobs:
       - name: Run GitHub File Sync
         uses: BetaHuhn/repo-file-sync-action@v1
         with:
-          GH_PAT: ${{ secrets.ROBOQUAT_FSYNC_TOKEN }}
+          GH_PAT: ${{ secrets.GITOPS_BOT_PR_APPROVAL_TOKEN }}
