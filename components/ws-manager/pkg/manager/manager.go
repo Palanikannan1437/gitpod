@@ -1383,15 +1383,20 @@ func (m *Manager) onChange(ctx context.Context, status *api.WorkspaceStatus) {
 	// There are some conditions we'd like to get notified about, for example while running experiements or because
 	// they represent out-of-the-ordinary situations.
 	// We attempt to use the GCP Error Reporting for this, hence log these situations as errors.
+	logStatus := &api.WorkspaceStatus{}
 	if status.Conditions.Failed != "" {
 		status, _ := protojson.Marshal(status)
 		safeStatus, _ := log.RedactJSON(status)
-		clog.WithField("status", string(safeStatus)).Error("workspace failed")
+		_ = protojson.Unmarshal(safeStatus, logStatus)
+
+		clog.WithField("status", logStatus).Error("workspace failed")
 	}
 	if status.Phase == 0 {
 		status, _ := protojson.Marshal(status)
 		safeStatus, _ := log.RedactJSON(status)
-		clog.WithField("status", string(safeStatus)).Error("workspace in UNKNOWN phase")
+		_ = protojson.Unmarshal(safeStatus, logStatus)
+
+		clog.WithField("status", logStatus).Error("workspace in UNKNOWN phase")
 	}
 }
 
