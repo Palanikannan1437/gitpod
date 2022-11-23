@@ -292,6 +292,7 @@ while [ "$documentIndex" -le "$DOCS" ]; do
       | jq ".daemon.cpulimit.totalBandwidth = \"12\"" \
       | jq ".daemon.cpulimit.limit = \"2\"" \
       | jq ".daemon.cpulimit.burstLimit = \"6\"" > /tmp/"$NAME"-"$KIND"-overrides.json
+      cat /tmp/"$NAME"-"$KIND"-overrides.json
       # Give the port a colon prefix, ("5678" to ":5678")
       # jq would not have it, hence the usage of sed to do the transformation
       PORT_NUM_FORMAT_EXPR="s/\"address\": $WS_DAEMON_PORT/\"address\": \":$WS_DAEMON_PORT\"/"
@@ -299,8 +300,10 @@ while [ "$documentIndex" -le "$DOCS" ]; do
       # write a yaml file with new json as a multiline string
       touch /tmp/"$NAME"-"$KIND"-data-overrides.yaml
       yq w -i /tmp/"$NAME"-"$KIND"-data-overrides.yaml "data.[config.json]" -- "$(< /tmp/"$NAME"-"$KIND"-overrides.json)"
+      cat /tmp/"$NAME"-"$KIND"-data-overrides.yaml
       # merge the updated data object with existing config
       yq m -x -i /tmp/"$NAME"-"$KIND"-overrides.yaml /tmp/"$NAME"-"$KIND"-data-overrides.yaml
+      cat /tmp/"$NAME"-"$KIND"-overrides.yaml
       # merge the updated config map with k8s.yaml
       yq m -x -i k8s.yaml -d "$documentIndex" /tmp/"$NAME"-"$KIND"-overrides.yaml
    fi
