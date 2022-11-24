@@ -7534,6 +7534,7 @@ spec:
             cpu: 1m
             memory: 30Mi
         securityContext:
+          allowPrivilegeEscalation: false
           runAsGroup: 65532
           runAsNonRoot: true
           runAsUser: 65532
@@ -7649,6 +7650,7 @@ spec:
             cpu: 100m
             memory: 32Mi
         securityContext:
+          allowPrivilegeEscalation: false
           privileged: false
           runAsUser: 1000
         volumeMounts:
@@ -7684,6 +7686,7 @@ spec:
             cpu: 1m
             memory: 30Mi
         securityContext:
+          allowPrivilegeEscalation: false
           runAsGroup: 65532
           runAsNonRoot: true
           runAsUser: 65532
@@ -7895,6 +7898,7 @@ spec:
             cpu: 1m
             memory: 30Mi
         securityContext:
+          allowPrivilegeEscalation: false
           runAsGroup: 65532
           runAsNonRoot: true
           runAsUser: 65532
@@ -7919,6 +7923,8 @@ spec:
               - --shutdown
         name: node-labeler
         resources: {}
+        securityContext:
+          allowPrivilegeEscalation: false
       dnsPolicy: ClusterFirst
       enableServiceLinks: false
       hostPID: true
@@ -8463,6 +8469,8 @@ spec:
             requests:
               cpu: 1m
               memory: 150Mi
+          securityContext:
+            allowPrivilegeEscalation: false
           volumeMounts:
             - mountPath: /config
               name: config
@@ -8481,6 +8489,8 @@ spec:
             requests:
               cpu: 1m
               memory: 150Mi
+          securityContext:
+            allowPrivilegeEscalation: false
           volumeMounts:
             - mountPath: /config
               name: config
@@ -8505,6 +8515,7 @@ spec:
               cpu: 1m
               memory: 30Mi
           securityContext:
+            allowPrivilegeEscalation: false
             runAsGroup: 65532
             runAsNonRoot: true
             runAsUser: 65532
@@ -8644,6 +8655,7 @@ spec:
             cpu: 1m
             memory: 30Mi
         securityContext:
+          allowPrivilegeEscalation: false
           runAsGroup: 65532
           runAsNonRoot: true
           runAsUser: 65532
@@ -8764,6 +8776,7 @@ spec:
             cpu: 1m
             memory: 30Mi
         securityContext:
+          allowPrivilegeEscalation: false
           runAsGroup: 65532
           runAsNonRoot: true
           runAsUser: 65532
@@ -8853,6 +8866,7 @@ spec:
             cpu: 100m
             memory: 32Mi
         securityContext:
+          allowPrivilegeEscalation: false
           privileged: false
       dnsPolicy: ClusterFirst
       enableServiceLinks: false
@@ -8939,6 +8953,7 @@ spec:
             cpu: 100m
             memory: 128Mi
         securityContext:
+          allowPrivilegeEscalation: false
           privileged: false
         volumeMounts:
         - mountPath: /config
@@ -8963,6 +8978,7 @@ spec:
             cpu: 1m
             memory: 30Mi
         securityContext:
+          allowPrivilegeEscalation: false
           runAsGroup: 65532
           runAsNonRoot: true
           runAsUser: 65532
@@ -9052,6 +9068,7 @@ spec:
             cpu: 100m
             memory: 32Mi
         securityContext:
+          allowPrivilegeEscalation: false
           privileged: false
       dnsPolicy: ClusterFirst
       enableServiceLinks: false
@@ -9139,6 +9156,7 @@ spec:
             cpu: 100m
             memory: 128Mi
         securityContext:
+          allowPrivilegeEscalation: false
           privileged: false
         volumeMounts:
         - mountPath: /config
@@ -9166,6 +9184,7 @@ spec:
             cpu: 1m
             memory: 30Mi
         securityContext:
+          allowPrivilegeEscalation: false
           runAsGroup: 65532
           runAsNonRoot: true
           runAsUser: 65532
@@ -9258,6 +9277,7 @@ spec:
             cpu: 100m
             memory: 200Mi
         securityContext:
+          allowPrivilegeEscalation: false
           privileged: false
           runAsUser: 33333
         volumeMounts:
@@ -9289,6 +9309,7 @@ spec:
             cpu: 1m
             memory: 30Mi
         securityContext:
+          allowPrivilegeEscalation: false
           runAsGroup: 65532
           runAsNonRoot: true
           runAsUser: 65532
@@ -9552,6 +9573,7 @@ spec:
             cpu: 100m
             memory: 200Mi
         securityContext:
+          allowPrivilegeEscalation: false
           privileged: false
         volumeMounts:
         - mountPath: /etc/caddy/vhosts
@@ -9710,6 +9732,7 @@ spec:
             cpu: 100m
             memory: 32Mi
         securityContext:
+          allowPrivilegeEscalation: false
           privileged: false
         volumeMounts:
         - mountPath: /config.json
@@ -9735,6 +9758,7 @@ spec:
             cpu: 1m
             memory: 30Mi
         securityContext:
+          allowPrivilegeEscalation: false
           runAsGroup: 65532
           runAsNonRoot: true
           runAsUser: 65532
@@ -9775,6 +9799,7 @@ spec:
         name: database-waiter
         resources: {}
         securityContext:
+          allowPrivilegeEscalation: false
           privileged: false
           runAsUser: 31001
       restartPolicy: Always
@@ -10018,6 +10043,7 @@ spec:
             cpu: 200m
             memory: 200Mi
         securityContext:
+          allowPrivilegeEscalation: false
           privileged: false
           runAsUser: 31001
         volumeMounts:
@@ -10052,6 +10078,7 @@ spec:
             cpu: 1m
             memory: 30Mi
         securityContext:
+          allowPrivilegeEscalation: false
           runAsGroup: 65532
           runAsNonRoot: true
           runAsUser: 65532
@@ -10091,6 +10118,7 @@ spec:
         name: database-waiter
         resources: {}
         securityContext:
+          allowPrivilegeEscalation: false
           privileged: false
           runAsUser: 31001
       - args:
@@ -10126,6 +10154,7 @@ spec:
         name: msgbus-waiter
         resources: {}
         securityContext:
+          allowPrivilegeEscalation: false
           privileged: false
           runAsUser: 31001
       priorityClassName: system-node-critical
@@ -10222,6 +10251,7 @@ spec:
             cpu: 100m
             memory: 32Mi
         securityContext:
+          allowPrivilegeEscalation: false
           privileged: false
         volumeMounts:
         - mountPath: /config
@@ -10255,6 +10285,7 @@ spec:
             cpu: 1m
             memory: 30Mi
         securityContext:
+          allowPrivilegeEscalation: false
           runAsGroup: 65532
           runAsNonRoot: true
           runAsUser: 65532
@@ -10401,6 +10432,7 @@ spec:
             cpu: 100m
             memory: 64Mi
         securityContext:
+          allowPrivilegeEscalation: false
           privileged: false
           runAsUser: 31001
         volumeMounts:
@@ -10429,6 +10461,7 @@ spec:
             cpu: 1m
             memory: 30Mi
         securityContext:
+          allowPrivilegeEscalation: false
           runAsGroup: 65532
           runAsNonRoot: true
           runAsUser: 65532
@@ -10469,6 +10502,7 @@ spec:
         name: database-waiter
         resources: {}
         securityContext:
+          allowPrivilegeEscalation: false
           privileged: false
           runAsUser: 31001
       - args:
@@ -10504,6 +10538,7 @@ spec:
         name: msgbus-waiter
         resources: {}
         securityContext:
+          allowPrivilegeEscalation: false
           privileged: false
           runAsUser: 31001
       priorityClassName: system-node-critical
@@ -10612,6 +10647,7 @@ spec:
             cpu: 100m
             memory: 32Mi
         securityContext:
+          allowPrivilegeEscalation: false
           privileged: false
         volumeMounts:
         - mountPath: /config
@@ -10641,6 +10677,7 @@ spec:
             cpu: 1m
             memory: 30Mi
         securityContext:
+          allowPrivilegeEscalation: false
           runAsGroup: 65532
           runAsNonRoot: true
           runAsUser: 65532
@@ -10749,6 +10786,8 @@ spec:
         imagePullPolicy: IfNotPresent
         name: migrations
         resources: {}
+        securityContext:
+          allowPrivilegeEscalation: false
       enableServiceLinks: false
       initContainers:
       - args:
@@ -10784,6 +10823,7 @@ spec:
         name: database-waiter
         resources: {}
         securityContext:
+          allowPrivilegeEscalation: false
           privileged: false
           runAsUser: 31001
       restartPolicy: Never
@@ -10836,6 +10876,8 @@ spec:
             imagePullPolicy: IfNotPresent
             name: gitpod-telemetry
             resources: {}
+            securityContext:
+              allowPrivilegeEscalation: false
           enableServiceLinks: false
           initContainers:
           - args:
@@ -10871,6 +10913,7 @@ spec:
             name: database-waiter
             resources: {}
             securityContext:
+              allowPrivilegeEscalation: false
               privileged: false
               runAsUser: 31001
           restartPolicy: OnFailure

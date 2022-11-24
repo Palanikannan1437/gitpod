@@ -2920,6 +2920,7 @@ spec:
             cpu: 1m
             memory: 30Mi
         securityContext:
+          allowPrivilegeEscalation: false
           runAsGroup: 65532
           runAsNonRoot: true
           runAsUser: 65532
@@ -3035,6 +3036,7 @@ spec:
             cpu: 100m
             memory: 32Mi
         securityContext:
+          allowPrivilegeEscalation: false
           privileged: false
           runAsUser: 1000
         volumeMounts:
@@ -3070,6 +3072,7 @@ spec:
             cpu: 1m
             memory: 30Mi
         securityContext:
+          allowPrivilegeEscalation: false
           runAsGroup: 65532
           runAsNonRoot: true
           runAsUser: 65532
@@ -3281,6 +3284,7 @@ spec:
             cpu: 1m
             memory: 30Mi
         securityContext:
+          allowPrivilegeEscalation: false
           runAsGroup: 65532
           runAsNonRoot: true
           runAsUser: 65532
@@ -3305,6 +3309,8 @@ spec:
               - --shutdown
         name: node-labeler
         resources: {}
+        securityContext:
+          allowPrivilegeEscalation: false
       dnsPolicy: ClusterFirst
       enableServiceLinks: false
       hostPID: true
@@ -3496,6 +3502,7 @@ spec:
             cpu: 100m
             memory: 200Mi
         securityContext:
+          allowPrivilegeEscalation: false
           privileged: false
           runAsUser: 33333
         volumeMounts:
@@ -3527,6 +3534,7 @@ spec:
             cpu: 1m
             memory: 30Mi
         securityContext:
+          allowPrivilegeEscalation: false
           runAsGroup: 65532
           runAsNonRoot: true
           runAsUser: 65532
@@ -3729,6 +3737,7 @@ spec:
             cpu: 100m
             memory: 32Mi
         securityContext:
+          allowPrivilegeEscalation: false
           privileged: false
         volumeMounts:
         - mountPath: /config
@@ -3762,6 +3771,7 @@ spec:
             cpu: 1m
             memory: 30Mi
         securityContext:
+          allowPrivilegeEscalation: false
           runAsGroup: 65532
           runAsNonRoot: true
           runAsUser: 65532
@@ -3879,6 +3889,7 @@ spec:
             cpu: 100m
             memory: 32Mi
         securityContext:
+          allowPrivilegeEscalation: false
           privileged: false
         volumeMounts:
         - mountPath: /config
@@ -3908,6 +3919,7 @@ spec:
             cpu: 1m
             memory: 30Mi
         securityContext:
+          allowPrivilegeEscalation: false
           runAsGroup: 65532
           runAsNonRoot: true
           runAsUser: 65532
