@@ -2272,6 +2272,7 @@ export class GitpodServerImpl implements GitpodServerWithTracing, Disposable {
         this.checkUser("getTeamProjects");
 
         await this.guardTeamOperation(teamId, "get");
+        log.info("get team projects", teamId);
         return this.projectsService.getTeamProjects(teamId);
     }
 
