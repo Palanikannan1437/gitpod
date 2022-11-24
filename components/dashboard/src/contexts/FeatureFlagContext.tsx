@@ -20,6 +20,7 @@ const FeatureFlagContext = createContext<{
     showUsageView: boolean;
     showUseLastSuccessfulPrebuild: boolean;
     usePublicApiTeamsService: boolean;
+    usePublicApiProjectsService: boolean;
     enablePersonalAccessTokens: boolean;
     useSlowDatabase: boolean;
 }>({
@@ -27,6 +28,7 @@ const FeatureFlagContext = createContext<{
     showUsageView: false,
     showUseLastSuccessfulPrebuild: false,
     usePublicApiTeamsService: false,
+    usePublicApiProjectsService: false,
     enablePersonalAccessTokens: false,
     useSlowDatabase: false,
 });
@@ -41,6 +43,7 @@ const FeatureFlagContextProvider: React.FC = ({ children }) => {
     const [showUsageView, setShowUsageView] = useState<boolean>(false);
     const [showUseLastSuccessfulPrebuild, setShowUseLastSuccessfulPrebuild] = useState<boolean>(false);
     const [usePublicApiTeamsService, setUsePublicApiTeamsService] = useState<boolean>(false);
+    const [usePublicApiProjectsService, setUsePublicApiProjectsService] = useState<boolean>(false);
     const [enablePersonalAccessTokens, setPersonalAccessTokensEnabled] = useState<boolean>(false);
     const [useSlowDatabase, setUseSlowDatabase] = useState<boolean>(false);
 
@@ -52,6 +55,7 @@ const FeatureFlagContextProvider: React.FC = ({ children }) => {
                 usage_view: { defaultValue: false, setter: setShowUsageView },
                 showUseLastSuccessfulPrebuild: { defaultValue: false, setter: setShowUseLastSuccessfulPrebuild },
                 publicApiExperimentalTeamsService: { defaultValue: false, setter: setUsePublicApiTeamsService },
+                publicApiExperimentalProjectsService: { defaultValue: false, setter: setUsePublicApiProjectsService },
                 personalAccessTokensEnabled: { defaultValue: false, setter: setPersonalAccessTokensEnabled },
                 slow_database: { defaultValue: false, setter: setUseSlowDatabase },
             };
@@ -93,6 +97,7 @@ const FeatureFlagContextProvider: React.FC = ({ children }) => {
                 usePublicApiTeamsService,
                 enablePersonalAccessTokens,
                 useSlowDatabase,
+                usePublicApiProjectsService,
             }}
         >
             {children}
