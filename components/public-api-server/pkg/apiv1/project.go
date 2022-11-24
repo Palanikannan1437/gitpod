@@ -118,6 +118,7 @@ func (s *ProjectsService) ListProjects(ctx context.Context, req *connect.Request
 		if err != nil {
 			return nil, proxy.ConvertError(err)
 		}
+		log.Info("user projects", projects)
 	}
 
 	if teamID != "" {
@@ -130,6 +131,7 @@ func (s *ProjectsService) ListProjects(ctx context.Context, req *connect.Request
 		if err != nil {
 			return nil, proxy.ConvertError(err)
 		}
+		log.Info("team projects", projects)
 	}
 
 	// We're extracting a particular page of results from the full set of results.
@@ -137,6 +139,7 @@ func (s *ProjectsService) ListProjects(ctx context.Context, req *connect.Request
 	// 	* Add new APIs to server which support pagination
 	// 	* Port the query logic to Public API
 	results := pageFromResults(projects, req.Msg.GetPagination())
+	log.Info("results", results)
 
 	return connect.NewResponse(&v1.ListProjectsResponse{
 		Projects:     projectsToAPIResponse(results),

@@ -5,6 +5,7 @@
 package apiv1
 
 import (
+	"github.com/gitpod-io/gitpod/common-go/log"
 	db "github.com/gitpod-io/gitpod/components/gitpod-db/go"
 	v1 "github.com/gitpod-io/gitpod/components/public-api/go/experimental/v1"
 )
@@ -52,6 +53,9 @@ func pageFromResults[T any](results []T, p *v1.Pagination) []T {
 	if end > size {
 		end = size
 	}
+
+	log.Info("start-end", start, end)
+	log.Info("results", results)
 
 	return results[start:end]
 }
