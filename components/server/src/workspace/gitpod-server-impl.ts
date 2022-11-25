@@ -2869,7 +2869,7 @@ export class GitpodServerImpl implements GitpodServerWithTracing, Disposable {
         //         handles potentially broken or malicious input, we better err on the side of caution.
 
         const userId = this.user?.id;
-        const anonymousId = event.anonymousId;
+        const anonymousId = this.resolveAnonymousId(event.anonymousId);
         const msg = {
             event: event.event,
             messageId: event.messageId,
@@ -2894,7 +2894,7 @@ export class GitpodServerImpl implements GitpodServerWithTracing, Disposable {
 
     public async trackLocation(ctx: TraceContext, event: RemotePageMessage): Promise<void> {
         const userId = this.user?.id;
-        const anonymousId = event.anonymousId;
+        const anonymousId = this.resolveAnonymousId(event.anonymousId);
         let msg = {
             messageId: event.messageId,
             context: {},
@@ -2928,11 +2928,24 @@ export class GitpodServerImpl implements GitpodServerWithTracing, Disposable {
 
         const identifyMessage: IdentifyMessage = {
             userId: user.id,
-            anonymousId: event.anonymousId,
+            anonymousId: this.resolveAnonymousId(event.anonymousId),
             traits: event.traits,
             context: event.context,
         };
         this.analytics.identify(identifyMessage);
+    }
+
+    protected resolveAnonymousId(id: string | number | undefined): string | number | undefined {
+        if (id) {
+            return id;
+        } else if (this.clientHeaderFields.ip && this.clientHeaderFields.userAgent) {
+            const date = new Date();
+            const today = `${date.getDate()}/${date.getMonth()}/${date.getFullYear()}`;
+            return crypto
+                .createHash("sha512")
+                .update(this.clientHeaderFields.ip + this.clientHeaderFields.userAgent + today)
+                .digest("hex");
+        }
     }
 
     async getTerms(ctx: TraceContext): Promise<Terms> {
