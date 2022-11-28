@@ -21,6 +21,8 @@ import { InputWithCopy } from "../components/InputWithCopy";
 import { copyToClipboard } from "../utils";
 import TokenEntry from "./TokenEntry";
 
+const personalAccessTokenNameRegex = /^[a-zA-Z0-9-_ ]{3,63}$/;
+
 function PersonalAccessTokens() {
     const { enablePersonalAccessTokens } = useContext(FeatureFlagContext);
 
@@ -149,6 +151,10 @@ export function PersonalAccessTokenCreateView() {
     const update = (change: Partial<EditPATData>) => {
         if (change.expirationDays) {
             change.expirationDate = new Date(Date.now() + change.expirationDays * 24 * 60 * 60 * 1000);
+        }
+        if (change.name) {
+            if (!personalAccessTokenNameRegex.test(change.name)) {
+            }
         }
         setErrorMsg("");
         setValue({ ...value, ...change });
