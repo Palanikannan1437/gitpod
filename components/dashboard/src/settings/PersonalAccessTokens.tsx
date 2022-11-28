@@ -152,10 +152,6 @@ export function PersonalAccessTokenCreateView() {
         if (change.expirationDays) {
             change.expirationDate = new Date(Date.now() + change.expirationDays * 24 * 60 * 60 * 1000);
         }
-        if (change.name) {
-            if (!personalAccessTokenNameRegex.test(change.name)) {
-            }
-        }
         setErrorMsg("");
         setValue({ ...value, ...change });
     };
@@ -176,8 +172,14 @@ export function PersonalAccessTokenCreateView() {
     };
 
     const handleConfirm = async () => {
-        if (value.name.length < 3) {
-            setErrorMsg("Token name should have at least three characters.");
+        if (/^\s+/.test(value.name) || /\s+$/.test(value.name)) {
+            setErrorMsg("Token name should not start or end with a space");
+            return;
+        }
+        if (!personalAccessTokenNameRegex.test(value.name)) {
+            setErrorMsg(
+                "Token name should have a length between 3 and 63 characters, it can only contain letters, numbers, underscore and space characters",
+            );
             return;
         }
         try {
