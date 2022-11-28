@@ -11,6 +11,7 @@ option java_package = "io.gitpod.ideservice.api";
 
 service IDEService {
     rpc GetConfig(GetConfigRequest) returns (GetConfigResponse) {}
+    rpc ResolveStartWorkspaceSpec(ResolveStartWorkspaceSpecRequest) returns (ResolveStartWorkspaceSpecResponse) {}
 }
 
 message GetConfigRequest {}
@@ -18,3 +19,7 @@ message GetConfigRequest {}
 message GetConfigResponse {
     string content = 1;
 }
+
+message ResolveStartWorkspaceSpecRequest {}
+
+message ResolveStartWorkspaceSpecResponse {}

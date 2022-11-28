@@ -173,3 +173,7 @@ func grpcProbe(cfg baseserver.ServerConfiguration) func() error {
 		return fmt.Errorf("grpc service not ready")
 	}
 }
+
+func (s *IDEServiceServer) resolveStartWorkspaceSpec(ctx context.Context, req *api.ResolveStartWorkspaceSpecRequest) (*api.ResolveStartWorkspaceSpecResponse, error) {
+	return &api.ResolveStartWorkspaceSpecResponse{}, nil
+}

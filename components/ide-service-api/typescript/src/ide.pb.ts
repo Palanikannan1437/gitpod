@@ -17,6 +17,12 @@ export interface GetConfigResponse {
   content: string;
 }
 
+export interface ResolveStartWorkspaceSpecRequest {
+}
+
+export interface ResolveStartWorkspaceSpecResponse {
+}
+
 function createBaseGetConfigRequest(): GetConfigRequest {
   return {};
 }
@@ -103,6 +109,84 @@ export const GetConfigResponse = {
   },
 };
 
+function createBaseResolveStartWorkspaceSpecRequest(): ResolveStartWorkspaceSpecRequest {
+  return {};
+}
+
+export const ResolveStartWorkspaceSpecRequest = {
+  encode(_: ResolveStartWorkspaceSpecRequest, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    return writer;
+  },
+
+  decode(input: _m0.Reader | Uint8Array, length?: number): ResolveStartWorkspaceSpecRequest {
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseResolveStartWorkspaceSpecRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+
+  fromJSON(_: any): ResolveStartWorkspaceSpecRequest {
+    return {};
+  },
+
+  toJSON(_: ResolveStartWorkspaceSpecRequest): unknown {
+    const obj: any = {};
+    return obj;
+  },
+
+  fromPartial(_: DeepPartial<ResolveStartWorkspaceSpecRequest>): ResolveStartWorkspaceSpecRequest {
+    const message = createBaseResolveStartWorkspaceSpecRequest();
+    return message;
+  },
+};
+
+function createBaseResolveStartWorkspaceSpecResponse(): ResolveStartWorkspaceSpecResponse {
+  return {};
+}
+
+export const ResolveStartWorkspaceSpecResponse = {
+  encode(_: ResolveStartWorkspaceSpecResponse, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    return writer;
+  },
+
+  decode(input: _m0.Reader | Uint8Array, length?: number): ResolveStartWorkspaceSpecResponse {
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseResolveStartWorkspaceSpecResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+
+  fromJSON(_: any): ResolveStartWorkspaceSpecResponse {
+    return {};
+  },
+
+  toJSON(_: ResolveStartWorkspaceSpecResponse): unknown {
+    const obj: any = {};
+    return obj;
+  },
+
+  fromPartial(_: DeepPartial<ResolveStartWorkspaceSpecResponse>): ResolveStartWorkspaceSpecResponse {
+    const message = createBaseResolveStartWorkspaceSpecResponse();
+    return message;
+  },
+};
+
 export type IDEServiceDefinition = typeof IDEServiceDefinition;
 export const IDEServiceDefinition = {
   name: "IDEService",
@@ -116,15 +200,31 @@ export const IDEServiceDefinition = {
       responseStream: false,
       options: {},
     },
+    resolveStartWorkspaceSpec: {
+      name: "ResolveStartWorkspaceSpec",
+      requestType: ResolveStartWorkspaceSpecRequest,
+      requestStream: false,
+      responseType: ResolveStartWorkspaceSpecResponse,
+      responseStream: false,
+      options: {},
+    },
   },
 } as const;
 
 export interface IDEServiceServiceImplementation<CallContextExt = {}> {
   getConfig(request: GetConfigRequest, context: CallContext & CallContextExt): Promise<DeepPartial<GetConfigResponse>>;
+  resolveStartWorkspaceSpec(
+    request: ResolveStartWorkspaceSpecRequest,
+    context: CallContext & CallContextExt,
+  ): Promise<DeepPartial<ResolveStartWorkspaceSpecResponse>>;
 }
 
 export interface IDEServiceClient<CallOptionsExt = {}> {
   getConfig(request: DeepPartial<GetConfigRequest>, options?: CallOptions & CallOptionsExt): Promise<GetConfigResponse>;
+  resolveStartWorkspaceSpec(
+    request: DeepPartial<ResolveStartWorkspaceSpecRequest>,
+    options?: CallOptions & CallOptionsExt,
+  ): Promise<ResolveStartWorkspaceSpecResponse>;
 }
 
 export interface DataLoaderOptions {

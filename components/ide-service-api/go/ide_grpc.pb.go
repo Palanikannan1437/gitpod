@@ -27,6 +27,7 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type IDEServiceClient interface {
 	GetConfig(ctx context.Context, in *GetConfigRequest, opts ...grpc.CallOption) (*GetConfigResponse, error)
+	ResolveStartWorkspaceSpec(ctx context.Context, in *ResolveStartWorkspaceSpecRequest, opts ...grpc.CallOption) (*ResolveStartWorkspaceSpecResponse, error)
 }
 
 type iDEServiceClient struct {
@@ -46,11 +47,21 @@ func (c *iDEServiceClient) GetConfig(ctx context.Context, in *GetConfigRequest, 
 	return out, nil
 }
 
+func (c *iDEServiceClient) ResolveStartWorkspaceSpec(ctx context.Context, in *ResolveStartWorkspaceSpecRequest, opts ...grpc.CallOption) (*ResolveStartWorkspaceSpecResponse, error) {
+	out := new(ResolveStartWorkspaceSpecResponse)
+	err := c.cc.Invoke(ctx, "/ide_service_api.IDEService/ResolveStartWorkspaceSpec", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // IDEServiceServer is the server API for IDEService service.
 // All implementations must embed UnimplementedIDEServiceServer
 // for forward compatibility
 type IDEServiceServer interface {
 	GetConfig(context.Context, *GetConfigRequest) (*GetConfigResponse, error)
+	ResolveStartWorkspaceSpec(context.Context, *ResolveStartWorkspaceSpecRequest) (*ResolveStartWorkspaceSpecResponse, error)
 	mustEmbedUnimplementedIDEServiceServer()
 }
 
@@ -60,6 +71,9 @@ type UnimplementedIDEServiceServer struct {
 
 func (UnimplementedIDEServiceServer) GetConfig(context.Context, *GetConfigRequest) (*GetConfigResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetConfig not implemented")
+}
+func (UnimplementedIDEServiceServer) ResolveStartWorkspaceSpec(context.Context, *ResolveStartWorkspaceSpecRequest) (*ResolveStartWorkspaceSpecResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ResolveStartWorkspaceSpec not implemented")
 }
 func (UnimplementedIDEServiceServer) mustEmbedUnimplementedIDEServiceServer() {}
 
@@ -92,6 +106,24 @@ func _IDEService_GetConfig_Handler(srv interface{}, ctx context.Context, dec fun
 	return interceptor(ctx, in, info, handler)
 }
 
+func _IDEService_ResolveStartWorkspaceSpec_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ResolveStartWorkspaceSpecRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(IDEServiceServer).ResolveStartWorkspaceSpec(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/ide_service_api.IDEService/ResolveStartWorkspaceSpec",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(IDEServiceServer).ResolveStartWorkspaceSpec(ctx, req.(*ResolveStartWorkspaceSpecRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // IDEService_ServiceDesc is the grpc.ServiceDesc for IDEService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -102,6 +134,10 @@ var IDEService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetConfig",
 			Handler:    _IDEService_GetConfig_Handler,
+		},
+		{
+			MethodName: "ResolveStartWorkspaceSpec",
+			Handler:    _IDEService_ResolveStartWorkspaceSpec_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
