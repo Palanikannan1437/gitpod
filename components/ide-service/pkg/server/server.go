@@ -179,7 +179,7 @@ type IDESettings struct {
 	UseLatestVersion bool   `json:"useLatestVersion,omitempty"`
 }
 
-type WithReferrerContext struct {
+type WorkspaceContext struct {
 	Referrer    string `json:"referrer,omitempty"`
 	ReferrerIde string `json:"referrerIde,omitempty"`
 }
@@ -208,7 +208,7 @@ type WorkspaceConfig struct {
 	Jetbrains *JetBrainsConfig `json:"jetbrains,omitempty"`
 }
 
-func (s *IDEServiceServer) resolveReferrerIDE(wsCtx WithReferrerContext, ideSettings IDESettings) (config.IDEOption, bool) {
+func (s *IDEServiceServer) resolveReferrerIDE(wsCtx WorkspaceContext, ideSettings IDESettings) (config.IDEOption, bool) {
 	if wsCtx.Referrer == "" || wsCtx.ReferrerIde == "" {
 		return config.IDEOption{}, false
 	}
@@ -252,18 +252,18 @@ func (s *IDEServiceServer) ResolveStartWorkspaceSpec(ctx context.Context, req *a
 		return resp, nil
 	}
 
-	var wsCfg WorkspaceConfig
-	var wsCtx WithReferrerContext
+	var wsConfig WorkspaceConfig
+	var wsContext WorkspaceContext
 	var ideSettings IDESettings
 
-	err = json.Unmarshal([]byte(req.WorkspaceConfig), &wsCfg)
+	err = json.Unmarshal([]byte(req.WorkspaceConfig), &wsConfig)
 	if err != nil {
 		// todo(af): define default
 		log.WithError(err).Error("failed to parse workspace config")
 		return resp, nil
 	}
 
-	err = json.Unmarshal([]byte(req.Context), &wsCtx)
+	err = json.Unmarshal([]byte(req.Context), &wsContext)
 	if err != nil {
 		// todo(af): define default
 		log.WithError(err).Error("failed to parse context")
@@ -276,7 +276,7 @@ func (s *IDEServiceServer) ResolveStartWorkspaceSpec(ctx context.Context, req *a
 		log.WithError(err).Error("failed to parse ide settings")
 		return resp, nil
 	}
-	if req.Type == api.WorkspaceType_PREBUILD && wsCfg.Jetbrains != nil {
+	if req.Type == api.WorkspaceType_PREBUILD && wsConfig.Jetbrains != nil {
 		// do some logic
 		return resp, nil
 	}
@@ -304,11 +304,10 @@ func (s *IDEServiceServer) ResolveStartWorkspaceSpec(ctx context.Context, req *a
 		return ideOption.PluginImage
 	}
 
-	// rename x
-	x, ok := s.ideConfig.IdeOptions.Options[chosenIDEName]
-
-	if chosenIDEName != "" && ok {
-		chosenIDE = x
+	if chosenIDEName != "" {
+		if ide, ok := s.ideConfig.IdeOptions.Options[chosenIDEName]; ok {
+			chosenIDE = ide
+		}
 	}
 
 	// we always need WebImage for when the user chooses a desktop ide
@@ -324,7 +323,7 @@ func (s *IDEServiceServer) ResolveStartWorkspaceSpec(ctx context.Context, req *a
 		resp.WebImage = getIDEImage(chosenIDE, chosenIDEVersion)
 	}
 
-	referrer, ok := s.resolveReferrerIDE(wsCtx, ideSettings)
+	referrer, ok := s.resolveReferrerIDE(wsContext, ideSettings)
 	if ok {
 		desktopImageLayer = getIDEImage(referrer, chosenIDEVersion)
 		desktopPluginImageLayer = getIDEImage(referrer, chosenIDEVersion)
