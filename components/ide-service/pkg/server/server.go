@@ -205,34 +205,92 @@ type JetBrainsConfig struct {
 }
 
 type WorkspaceConfig struct {
-	Jetbrains JetBrainsConfig `json:"jetbrains,omitempty"`
+	Jetbrains *JetBrainsConfig `json:"jetbrains,omitempty"`
 }
 
-func (s *IDEServiceServer) resolveStartWorkspaceSpec(ctx context.Context, req *api.ResolveStartWorkspaceSpecRequest) (*api.ResolveStartWorkspaceSpecResponse, error) {
+func (s *IDEServiceServer) resolveStartWorkspaceSpec(ctx context.Context, req *api.ResolveStartWorkspaceSpecRequest) (resp *api.ResolveStartWorkspaceSpecResponse, err error) {
+	resp = &api.ResolveStartWorkspaceSpecResponse{
+		SupervisorImage: s.ideConfig.SupervisorImage,
+	}
+
+	if req.Type == api.WorkspaceType_IMAGEBUILD {
+		return resp, nil
+	}
+
 	var wsCfg WorkspaceConfig
 	var wsCtx WithReferrerContext
 	var ideSettings IDESettings
 
-	err := json.Unmarshal([]byte(req.WorkspaceConfig), &wsCfg)
+	err = json.Unmarshal([]byte(req.WorkspaceConfig), &wsCfg)
 	if err != nil {
 		// todo(af): define default
 		log.WithError(err).Error("failed to parse workspace config")
-		return &api.ResolveStartWorkspaceSpecResponse{}, nil
+		return resp, nil
 	}
 
 	err = json.Unmarshal([]byte(req.Context), &wsCtx)
 	if err != nil {
 		// todo(af): define default
 		log.WithError(err).Error("failed to parse context")
-		return &api.ResolveStartWorkspaceSpecResponse{}, nil
+		return resp, nil
 	}
 
 	err = json.Unmarshal([]byte(req.WorkspaceConfig), &ideSettings)
 	if err != nil {
 		// todo(af): define default
 		log.WithError(err).Error("failed to parse ide settings")
-		return &api.ResolveStartWorkspaceSpecResponse{}, nil
+		return resp, nil
+	}
+	if req.Type == api.WorkspaceType_PREBUILD && wsCfg.Jetbrains != nil {
+		// do some logic
+		return resp, nil
 	}
 
-	return &api.ResolveStartWorkspaceSpecResponse{}, nil
+	defaultIde := s.ideConfig.IdeOptions.Options[s.ideConfig.IdeOptions.DefaultIde]
+
+	chosenIDEName := ideSettings.DefaultIde
+	chosenIDEVersion := ideSettings.UseLatestVersion
+
+	chosenIDE := defaultIde
+
+	if chosenIDEName != "" && s.ideConfig.IdeOptions.Options[chosenIDEName] != nil {
+		chosenIDE = s.ideConfig.IdeOptions.Options[chosenIDEName]
+	}
+	// always put web ide layer
+
+	if chosenIDE.Type == config.IDETypeDesktop {
+		// put desktop
+	}
+	// const defaultIDEOption = ideOptions.options[ideOptions.defaultIde];
+	// const defaultIdeImage = useLatest ? defaultIDEOption.latestImage ?? defaultIDEOption.image : defaultIDEOption.image;
+	// const data: { desktopIdeImage?: string; desktopIdePluginImage?: string; ideImage: string } = {
+	// 	ideImage: defaultIdeImage,
+	// };
+	// const chooseOption = ideOptions.options[ideChoice] ?? defaultIDEOption;
+	// const isDesktopIde = chooseOption.type === "desktop";
+	// if (isDesktopIde) {
+	// 	data.desktopIdeImage = useLatest ? chooseOption?.latestImage ?? chooseOption?.image : chooseOption?.image;
+	// 	data.desktopIdePluginImage = useLatest
+	// 		? chooseOption?.pluginLatestImage ?? chooseOption?.pluginImage
+	// 		: chooseOption?.pluginImage;
+	// 	if (hasIdeSettingPerm) {
+	// 		data.desktopIdeImage = data.desktopIdeImage || ideChoice;
+	// 	}
+	// } else {
+	// 	data.ideImage = useLatest ? chooseOption?.latestImage ?? chooseOption?.image : chooseOption?.image;
+	// 	if (hasIdeSettingPerm) {
+	// 		data.ideImage = data.ideImage || ideChoice;
+	// 	}
+	// }
+	// if (!data.ideImage) {
+	// 	data.ideImage = defaultIdeImage;
+	// 	// throw new Error("cannot choose correct browser ide");
+	// }
+	// return data;
+	//             configuration.ideImage = choose.ideImage;
+	//             configuration.desktopIdeImage = choose.desktopIdeImage;
+	//             configuration.desktopIdePluginImage = choose.desktopIdePluginImage;
+	//         }
+
+	return resp, nil
 }
