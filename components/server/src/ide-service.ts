@@ -6,7 +6,12 @@
 
 import { JetBrainsConfig, TaskConfig, Workspace } from "@gitpod/gitpod-protocol";
 import { IDEOptions, IDEClient } from "@gitpod/gitpod-protocol/lib/ide-protocol";
-import { IDEServiceClient, IDEServiceDefinition } from "@gitpod/ide-service-api/lib/ide.pb";
+import {
+    IDEServiceClient,
+    IDEServiceDefinition,
+    ResolveStartWorkspaceSpecRequest,
+    ResolveStartWorkspaceSpecResponse,
+} from "@gitpod/ide-service-api/lib/ide.pb";
 import { inject, injectable } from "inversify";
 
 export interface IDEConfig {
@@ -35,6 +40,10 @@ export class IDEService {
                 return this.cacheConfig;
             }
         }
+    }
+
+    async resolveStartWorkspaceSpec(req: ResolveStartWorkspaceSpecRequest): Promise<ResolveStartWorkspaceSpecResponse> {
+        return this.ideService.resolveStartWorkspaceSpec(req);
     }
 
     resolveGitpodTasks(ws: Workspace): TaskConfig[] {

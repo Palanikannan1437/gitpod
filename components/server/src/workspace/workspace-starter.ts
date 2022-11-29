@@ -109,6 +109,7 @@ import { MessageBusIntegration } from "./messagebus-integration";
 import * as path from "path";
 import * as grpc from "@grpc/grpc-js";
 import { IDEConfig, IDEService } from "../ide-service";
+import IdeServiceApi from "@gitpod/ide-service-api/lib/ide.pb";
 import { IDEOption, IDEOptions } from "@gitpod/gitpod-protocol/lib/ide-protocol";
 import { Deferred } from "@gitpod/gitpod-protocol/lib/util/deferred";
 import { ExtendedUser } from "@gitpod/ws-manager/lib/constraints";
@@ -356,8 +357,6 @@ export class WorkspaceStarter {
                 }
             }
 
-            const ideConfig = await this.ideService.getIDEConfig();
-
             // create and store instance
             let instance = await this.workspaceDb
                 .trace({ span })
@@ -369,7 +368,6 @@ export class WorkspaceStarter {
                         user,
                         project,
                         options.excludeFeatureFlags || [],
-                        ideConfig,
                     ),
                 );
             span.log({ newInstance: instance.id });
@@ -825,13 +823,9 @@ export class WorkspaceStarter {
         user: User,
         project: Project | undefined,
         excludeFeatureFlags: NamedWorkspaceFeatureFlag[],
-        ideConfig: IDEConfig,
     ): Promise<WorkspaceInstance> {
         const span = TraceContext.startSpan("newInstance", ctx);
         //#region IDE resolution TODO(ak) move to IDE service
-        // TODO: Compatible with ide-config not deployed, need revert after ide-config deployed
-        delete ideConfig.ideOptions.options["code-latest"];
-        delete ideConfig.ideOptions.options["code-desktop-insiders"];
 
         try {
             const migrated = migrationIDESettings(user);
@@ -839,6 +833,20 @@ export class WorkspaceStarter {
                 user.additionalData.ideSettings = migrated;
             }
 
+            let workspaceType: IdeServiceApi.WorkspaceType;
+            switch (workspace.type) {
+                case WorkspaceType.PREBUILD: {
+                    workspaceType = IdeServiceApi.WorkspaceType.Prebuild;
+                }
+            }
+
+            const req: ResolveStartWorkspaceSpecRequest = {
+                type: workspaceType,
+                context: workspace.context,
+                // ideSettings: string;
+                // workspaceConfig: string;
+            };
+            await this.ideService.resolveStartWorkspaceSpec(req);
             // call ide-service
             // remove ideConfig here
 

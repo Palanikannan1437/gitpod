@@ -717,7 +717,7 @@ export interface Workspace {
      */
     contentDeletedTime?: string;
 
-    type: WorkspaceType;
+    1type: WorkspaceType;
 
     basedOnPrebuildId?: string;
 
