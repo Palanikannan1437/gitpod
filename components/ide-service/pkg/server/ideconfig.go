@@ -13,6 +13,7 @@ import (
 	"github.com/gitpod-io/gitpod/common-go/log"
 	"github.com/gitpod-io/gitpod/ide-service-api/config"
 	oci_tool "github.com/gitpod-io/gitpod/ide-service/pkg/ocitool"
+	"github.com/opencontainers/go-digest"
 	"github.com/xeipuuv/gojsonschema"
 	"golang.org/x/xerrors"
 )
@@ -68,6 +69,11 @@ func ParseConfig(ctx context.Context, b []byte) (*config.IDEConfig, error) {
 			if resolved, err := oci_tool.Resolve(ctx, option.Image); err != nil {
 				log.WithError(err).Error("ide config: cannot resolve image digest")
 			} else {
+				if resolvedVersion, err := oci_tool.ResolveIDEVersion(ctx, option.Image, digest.Digest(resolved)); err != nil {
+					log.WithError(err).Error("ide config: cannot get version from image")
+				} else {
+					option.ImageVersion = resolvedVersion
+				}
 				log.WithField("ide", id).WithField("image", option.Image).WithField("resolved", resolved).Info("ide config: resolved latest image digest")
 				option.Image = resolved
 			}
@@ -76,6 +82,11 @@ func ParseConfig(ctx context.Context, b []byte) (*config.IDEConfig, error) {
 			if resolved, err := oci_tool.Resolve(ctx, option.LatestImage); err != nil {
 				log.WithError(err).Error("ide config: cannot resolve latest image digest")
 			} else {
+				if resolvedVersion, err := oci_tool.ResolveIDEVersion(ctx, option.LatestImage, digest.Digest(resolved)); err != nil {
+					log.WithError(err).Error("ide config: cannot get version from image")
+				} else {
+					option.LatestImageVersion = resolvedVersion
+				}
 				log.WithField("ide", id).WithField("image", option.LatestImage).WithField("resolved", resolved).Info("ide config: resolved latest image digest")
 				option.LatestImage = resolved
 			}
