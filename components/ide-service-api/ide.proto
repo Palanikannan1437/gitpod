@@ -11,7 +11,7 @@ option java_package = "io.gitpod.ideservice.api";
 
 service IDEService {
     rpc GetConfig(GetConfigRequest) returns (GetConfigResponse) {}
-    rpc ResolveStartWorkspaceSpec(ResolveStartWorkspaceSpecRequest) returns (ResolveStartWorkspaceSpecResponse) {}
+    rpc ResolveWorkspaceConfig(ResolveWorkspaceConfigRequest) returns (ResolveWorkspaceConfigResponse) {}
 }
 
 message GetConfigRequest {}
@@ -38,14 +38,14 @@ enum WorkspaceType {
 }
 
 
-message ResolveStartWorkspaceSpecRequest {
+message ResolveWorkspaceConfigRequest {
     WorkspaceType type = 1;
     string context = 2;
     string ide_settings = 3;
     string workspace_config = 4;
 }
 
-message ResolveStartWorkspaceSpecResponse {
+message ResolveWorkspaceConfigResponse {
     repeated EnvironmentVariable envvars = 1;
     string supervisor_image = 2;
     string web_image= 3;

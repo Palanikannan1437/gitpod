@@ -80,14 +80,14 @@ export interface EnvironmentVariable {
   value: string;
 }
 
-export interface ResolveStartWorkspaceSpecRequest {
+export interface ResolveWorkspaceConfigRequest {
   type: WorkspaceType;
   context: string;
   ideSettings: string;
   workspaceConfig: string;
 }
 
-export interface ResolveStartWorkspaceSpecResponse {
+export interface ResolveWorkspaceConfigResponse {
   envvars: EnvironmentVariable[];
   supervisorImage: string;
   webImage: string;
@@ -239,12 +239,12 @@ export const EnvironmentVariable = {
   },
 };
 
-function createBaseResolveStartWorkspaceSpecRequest(): ResolveStartWorkspaceSpecRequest {
+function createBaseResolveWorkspaceConfigRequest(): ResolveWorkspaceConfigRequest {
   return { type: WorkspaceType.REGULAR, context: "", ideSettings: "", workspaceConfig: "" };
 }
 
-export const ResolveStartWorkspaceSpecRequest = {
-  encode(message: ResolveStartWorkspaceSpecRequest, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+export const ResolveWorkspaceConfigRequest = {
+  encode(message: ResolveWorkspaceConfigRequest, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (message.type !== WorkspaceType.REGULAR) {
       writer.uint32(8).int32(workspaceTypeToNumber(message.type));
     }
@@ -260,10 +260,10 @@ export const ResolveStartWorkspaceSpecRequest = {
     return writer;
   },
 
-  decode(input: _m0.Reader | Uint8Array, length?: number): ResolveStartWorkspaceSpecRequest {
+  decode(input: _m0.Reader | Uint8Array, length?: number): ResolveWorkspaceConfigRequest {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseResolveStartWorkspaceSpecRequest();
+    const message = createBaseResolveWorkspaceConfigRequest();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -287,7 +287,7 @@ export const ResolveStartWorkspaceSpecRequest = {
     return message;
   },
 
-  fromJSON(object: any): ResolveStartWorkspaceSpecRequest {
+  fromJSON(object: any): ResolveWorkspaceConfigRequest {
     return {
       type: isSet(object.type) ? workspaceTypeFromJSON(object.type) : WorkspaceType.REGULAR,
       context: isSet(object.context) ? String(object.context) : "",
@@ -296,7 +296,7 @@ export const ResolveStartWorkspaceSpecRequest = {
     };
   },
 
-  toJSON(message: ResolveStartWorkspaceSpecRequest): unknown {
+  toJSON(message: ResolveWorkspaceConfigRequest): unknown {
     const obj: any = {};
     message.type !== undefined && (obj.type = workspaceTypeToJSON(message.type));
     message.context !== undefined && (obj.context = message.context);
@@ -305,8 +305,8 @@ export const ResolveStartWorkspaceSpecRequest = {
     return obj;
   },
 
-  fromPartial(object: DeepPartial<ResolveStartWorkspaceSpecRequest>): ResolveStartWorkspaceSpecRequest {
-    const message = createBaseResolveStartWorkspaceSpecRequest();
+  fromPartial(object: DeepPartial<ResolveWorkspaceConfigRequest>): ResolveWorkspaceConfigRequest {
+    const message = createBaseResolveWorkspaceConfigRequest();
     message.type = object.type ?? WorkspaceType.REGULAR;
     message.context = object.context ?? "";
     message.ideSettings = object.ideSettings ?? "";
@@ -315,12 +315,12 @@ export const ResolveStartWorkspaceSpecRequest = {
   },
 };
 
-function createBaseResolveStartWorkspaceSpecResponse(): ResolveStartWorkspaceSpecResponse {
+function createBaseResolveWorkspaceConfigResponse(): ResolveWorkspaceConfigResponse {
   return { envvars: [], supervisorImage: "", webImage: "", ideImageLayers: [], setDefaultIde: "" };
 }
 
-export const ResolveStartWorkspaceSpecResponse = {
-  encode(message: ResolveStartWorkspaceSpecResponse, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+export const ResolveWorkspaceConfigResponse = {
+  encode(message: ResolveWorkspaceConfigResponse, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     for (const v of message.envvars) {
       EnvironmentVariable.encode(v!, writer.uint32(10).fork()).ldelim();
     }
@@ -339,10 +339,10 @@ export const ResolveStartWorkspaceSpecResponse = {
     return writer;
   },
 
-  decode(input: _m0.Reader | Uint8Array, length?: number): ResolveStartWorkspaceSpecResponse {
+  decode(input: _m0.Reader | Uint8Array, length?: number): ResolveWorkspaceConfigResponse {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseResolveStartWorkspaceSpecResponse();
+    const message = createBaseResolveWorkspaceConfigResponse();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -369,7 +369,7 @@ export const ResolveStartWorkspaceSpecResponse = {
     return message;
   },
 
-  fromJSON(object: any): ResolveStartWorkspaceSpecResponse {
+  fromJSON(object: any): ResolveWorkspaceConfigResponse {
     return {
       envvars: Array.isArray(object?.envvars) ? object.envvars.map((e: any) => EnvironmentVariable.fromJSON(e)) : [],
       supervisorImage: isSet(object.supervisorImage) ? String(object.supervisorImage) : "",
@@ -379,7 +379,7 @@ export const ResolveStartWorkspaceSpecResponse = {
     };
   },
 
-  toJSON(message: ResolveStartWorkspaceSpecResponse): unknown {
+  toJSON(message: ResolveWorkspaceConfigResponse): unknown {
     const obj: any = {};
     if (message.envvars) {
       obj.envvars = message.envvars.map((e) => e ? EnvironmentVariable.toJSON(e) : undefined);
@@ -397,8 +397,8 @@ export const ResolveStartWorkspaceSpecResponse = {
     return obj;
   },
 
-  fromPartial(object: DeepPartial<ResolveStartWorkspaceSpecResponse>): ResolveStartWorkspaceSpecResponse {
-    const message = createBaseResolveStartWorkspaceSpecResponse();
+  fromPartial(object: DeepPartial<ResolveWorkspaceConfigResponse>): ResolveWorkspaceConfigResponse {
+    const message = createBaseResolveWorkspaceConfigResponse();
     message.envvars = object.envvars?.map((e) => EnvironmentVariable.fromPartial(e)) || [];
     message.supervisorImage = object.supervisorImage ?? "";
     message.webImage = object.webImage ?? "";
@@ -421,11 +421,11 @@ export const IDEServiceDefinition = {
       responseStream: false,
       options: {},
     },
-    resolveStartWorkspaceSpec: {
-      name: "ResolveStartWorkspaceSpec",
-      requestType: ResolveStartWorkspaceSpecRequest,
+    resolveWorkspaceConfig: {
+      name: "ResolveWorkspaceConfig",
+      requestType: ResolveWorkspaceConfigRequest,
       requestStream: false,
-      responseType: ResolveStartWorkspaceSpecResponse,
+      responseType: ResolveWorkspaceConfigResponse,
       responseStream: false,
       options: {},
     },
@@ -434,18 +434,18 @@ export const IDEServiceDefinition = {
 
 export interface IDEServiceServiceImplementation<CallContextExt = {}> {
   getConfig(request: GetConfigRequest, context: CallContext & CallContextExt): Promise<DeepPartial<GetConfigResponse>>;
-  resolveStartWorkspaceSpec(
-    request: ResolveStartWorkspaceSpecRequest,
+  resolveWorkspaceConfig(
+    request: ResolveWorkspaceConfigRequest,
     context: CallContext & CallContextExt,
-  ): Promise<DeepPartial<ResolveStartWorkspaceSpecResponse>>;
+  ): Promise<DeepPartial<ResolveWorkspaceConfigResponse>>;
 }
 
 export interface IDEServiceClient<CallOptionsExt = {}> {
   getConfig(request: DeepPartial<GetConfigRequest>, options?: CallOptions & CallOptionsExt): Promise<GetConfigResponse>;
-  resolveStartWorkspaceSpec(
-    request: DeepPartial<ResolveStartWorkspaceSpecRequest>,
+  resolveWorkspaceConfig(
+    request: DeepPartial<ResolveWorkspaceConfigRequest>,
     options?: CallOptions & CallOptionsExt,
-  ): Promise<ResolveStartWorkspaceSpecResponse>;
+  ): Promise<ResolveWorkspaceConfigResponse>;
 }
 
 export interface DataLoaderOptions {

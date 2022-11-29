@@ -357,6 +357,10 @@ export class WorkspaceStarter {
                 }
             }
 
+            // call here
+            const ideConfig = await this.ideService.resolveStartWorkspaceSpec(req);
+            // extract
+
             // create and store instance
             let instance = await this.workspaceDb
                 .trace({ span })
@@ -368,6 +372,7 @@ export class WorkspaceStarter {
                         user,
                         project,
                         options.excludeFeatureFlags || [],
+
                     ),
                 );
             span.log({ newInstance: instance.id });
@@ -896,13 +901,13 @@ export class WorkspaceStarter {
                 workspaceConfig: JSON.stringify(workspace.config),
             };
             let resp = await this.ideService.resolveStartWorkspaceSpec(req);
-            const envvars = {} as { [key: string]: string };
-            resp.envvars.forEach((envvar) => (envvars[envvar.name] = envvar.value));
+            // const envvars = {} as { [key: string]: string };
+            // resp.envvars.forEach((envvar) => (envvars[envvar.name] = envvar.value));
             const configuration: WorkspaceInstanceConfiguration = {
                 ideImage: resp.webImage,
                 supervisorImage: resp.supervisorImage,
-                ideImageLayer: resp.ideImageLayers,
-                sysEnvvars: envvars,
+                // ideImageLayer: resp.ideImageLayers,
+                // sysEnvvars: envvars,
             };
 
             // call ide-service

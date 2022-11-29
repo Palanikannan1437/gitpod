@@ -27,7 +27,7 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type IDEServiceClient interface {
 	GetConfig(ctx context.Context, in *GetConfigRequest, opts ...grpc.CallOption) (*GetConfigResponse, error)
-	ResolveStartWorkspaceSpec(ctx context.Context, in *ResolveStartWorkspaceSpecRequest, opts ...grpc.CallOption) (*ResolveStartWorkspaceSpecResponse, error)
+	ResolveWorkspaceConfig(ctx context.Context, in *ResolveWorkspaceConfigRequest, opts ...grpc.CallOption) (*ResolveWorkspaceConfigResponse, error)
 }
 
 type iDEServiceClient struct {
@@ -47,9 +47,9 @@ func (c *iDEServiceClient) GetConfig(ctx context.Context, in *GetConfigRequest, 
 	return out, nil
 }
 
-func (c *iDEServiceClient) ResolveStartWorkspaceSpec(ctx context.Context, in *ResolveStartWorkspaceSpecRequest, opts ...grpc.CallOption) (*ResolveStartWorkspaceSpecResponse, error) {
-	out := new(ResolveStartWorkspaceSpecResponse)
-	err := c.cc.Invoke(ctx, "/ide_service_api.IDEService/ResolveStartWorkspaceSpec", in, out, opts...)
+func (c *iDEServiceClient) ResolveWorkspaceConfig(ctx context.Context, in *ResolveWorkspaceConfigRequest, opts ...grpc.CallOption) (*ResolveWorkspaceConfigResponse, error) {
+	out := new(ResolveWorkspaceConfigResponse)
+	err := c.cc.Invoke(ctx, "/ide_service_api.IDEService/ResolveWorkspaceConfig", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -61,7 +61,7 @@ func (c *iDEServiceClient) ResolveStartWorkspaceSpec(ctx context.Context, in *Re
 // for forward compatibility
 type IDEServiceServer interface {
 	GetConfig(context.Context, *GetConfigRequest) (*GetConfigResponse, error)
-	ResolveStartWorkspaceSpec(context.Context, *ResolveStartWorkspaceSpecRequest) (*ResolveStartWorkspaceSpecResponse, error)
+	ResolveWorkspaceConfig(context.Context, *ResolveWorkspaceConfigRequest) (*ResolveWorkspaceConfigResponse, error)
 	mustEmbedUnimplementedIDEServiceServer()
 }
 
@@ -72,8 +72,8 @@ type UnimplementedIDEServiceServer struct {
 func (UnimplementedIDEServiceServer) GetConfig(context.Context, *GetConfigRequest) (*GetConfigResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetConfig not implemented")
 }
-func (UnimplementedIDEServiceServer) ResolveStartWorkspaceSpec(context.Context, *ResolveStartWorkspaceSpecRequest) (*ResolveStartWorkspaceSpecResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ResolveStartWorkspaceSpec not implemented")
+func (UnimplementedIDEServiceServer) ResolveWorkspaceConfig(context.Context, *ResolveWorkspaceConfigRequest) (*ResolveWorkspaceConfigResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ResolveWorkspaceConfig not implemented")
 }
 func (UnimplementedIDEServiceServer) mustEmbedUnimplementedIDEServiceServer() {}
 
@@ -106,20 +106,20 @@ func _IDEService_GetConfig_Handler(srv interface{}, ctx context.Context, dec fun
 	return interceptor(ctx, in, info, handler)
 }
 
-func _IDEService_ResolveStartWorkspaceSpec_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ResolveStartWorkspaceSpecRequest)
+func _IDEService_ResolveWorkspaceConfig_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ResolveWorkspaceConfigRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(IDEServiceServer).ResolveStartWorkspaceSpec(ctx, in)
+		return srv.(IDEServiceServer).ResolveWorkspaceConfig(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/ide_service_api.IDEService/ResolveStartWorkspaceSpec",
+		FullMethod: "/ide_service_api.IDEService/ResolveWorkspaceConfig",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(IDEServiceServer).ResolveStartWorkspaceSpec(ctx, req.(*ResolveStartWorkspaceSpecRequest))
+		return srv.(IDEServiceServer).ResolveWorkspaceConfig(ctx, req.(*ResolveWorkspaceConfigRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -136,8 +136,8 @@ var IDEService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _IDEService_GetConfig_Handler,
 		},
 		{
-			MethodName: "ResolveStartWorkspaceSpec",
-			Handler:    _IDEService_ResolveStartWorkspaceSpec_Handler,
+			MethodName: "ResolveWorkspaceConfig",
+			Handler:    _IDEService_ResolveWorkspaceConfig_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

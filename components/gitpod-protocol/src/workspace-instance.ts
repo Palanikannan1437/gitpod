@@ -233,21 +233,29 @@ export interface ConfigurationIdeConfig {
 
 // WorkspaceInstanceConfiguration contains all per-instance configuration
 export interface WorkspaceInstanceConfiguration {
+    // theiaVersion is the version of Theia this workspace instance uses
+    // @deprected: replaced with the ideImage field
+    theiaVersion?: string;
+
     // feature flags are the lowercase feature-flag names as passed to ws-manager
     featureFlags?: NamedWorkspaceFeatureFlag[];
 
     // ideImage is the ref of the IDE image this instance uses.
     ideImage: string;
 
+    // desktopIdeImage is the ref of the desktop IDE image this instance uses.
+    desktopIdeImage?: string;
+
+    // desktopIdePluginImage is the ref of the desktop IDE plugin image this instance uses.
+    desktopIdePluginImage?: string;
+
     // supervisorImage is the ref of the supervisor image this instance uses.
     supervisorImage?: string;
 
-    // ideImageLayer
-    ideImageLayer?: string[];
-
-    // sysEnvvars
-    sysEnvvars?: { [key: string]: string };
+    ideConfig?: ConfigurationIdeConfig;
 }
+
+
 
 /**
  * Holds information about the image build (if there was one) for this WorkspaceInstance
