@@ -20,8 +20,15 @@ func TestResolveStartWorkspaceSpec(t *testing.T) {
 
 	cfg := &config.ServiceConfiguration{
 		Server:        &baseserver.Configuration{},
-		IDEConfigPath: "",
+		IDEConfigPath: "../../example-ide-config.json",
 	}
 	server := New(cfg)
-	server.ResolveStartWorkspaceSpec(ctx, &api.ResolveStartWorkspaceSpecRequest{})
+	server.readIDEConfig(ctx, true)
+	resp, err := server.ResolveStartWorkspaceSpec(ctx, &api.ResolveStartWorkspaceSpecRequest{
+		Type: api.WorkspaceType_IMAGEBUILD,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Log(resp)
 }
