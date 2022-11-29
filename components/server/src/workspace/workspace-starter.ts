@@ -828,7 +828,7 @@ export class WorkspaceStarter {
         ideConfig: IDEConfig,
     ): Promise<WorkspaceInstance> {
         const span = TraceContext.startSpan("newInstance", ctx);
-        //#endregion IDE resolution TODO(ak) move to IDE service
+        //#region IDE resolution TODO(ak) move to IDE service
         // TODO: Compatible with ide-config not deployed, need revert after ide-config deployed
         delete ideConfig.ideOptions.options["code-latest"];
         delete ideConfig.ideOptions.options["code-desktop-insiders"];
@@ -839,57 +839,9 @@ export class WorkspaceStarter {
                 user.additionalData.ideSettings = migrated;
             }
 
-            const ideChoice = user.additionalData?.ideSettings?.defaultIde;
-            const useLatest = !!user.additionalData?.ideSettings?.useLatestVersion;
+            // call ide-service
+            // remove ideConfig here
 
-            // TODO(cw): once we allow changing the IDE in the workspace config (i.e. .gitpod.yml), we must
-            //           give that value precedence over the default choice.
-            const configuration: WorkspaceInstanceConfiguration = {
-                ideImage: ideConfig.ideOptions.options[ideConfig.ideOptions.defaultIde].image,
-                supervisorImage: ideConfig.supervisorImage,
-                ideConfig: {
-                    // We only check user setting because if code(insider) but desktopIde has no latestImage
-                    // it still need to notice user that this workspace is using latest IDE
-                    useLatest: user.additionalData?.ideSettings?.useLatestVersion,
-                },
-            };
-
-            if (!!ideChoice) {
-                const choose = chooseIDE(
-                    ideChoice,
-                    ideConfig.ideOptions,
-                    useLatest,
-                    this.authService.hasPermission(user, "ide-settings"),
-                );
-                configuration.ideImage = choose.ideImage;
-                configuration.desktopIdeImage = choose.desktopIdeImage;
-                configuration.desktopIdePluginImage = choose.desktopIdePluginImage;
-            }
-
-            const referrerIde = this.resolveReferrerIDE(workspace, user, ideConfig);
-            if (referrerIde) {
-                configuration.desktopIdeImage = useLatest
-                    ? referrerIde.option.latestImage ?? referrerIde.option.image
-                    : referrerIde.option.image;
-                configuration.desktopIdePluginImage = useLatest
-                    ? referrerIde.option.pluginLatestImage ?? referrerIde.option.pluginImage
-                    : referrerIde.option.pluginImage;
-                if (!user.additionalData?.ideSettings) {
-                    // A user does not have IDE settings configured yet configure it with a referrer ide as default.
-                    const additionalData = user?.additionalData || {};
-                    const settings = additionalData.ideSettings || {};
-                    settings.settingVersion = "2.0";
-                    settings.defaultIde = referrerIde.id;
-                    additionalData.ideSettings = settings;
-                    user.additionalData = additionalData;
-                    this.userDB
-                        .trace(ctx)
-                        .updateUserPartial(user)
-                        .catch((e) => {
-                            log.error({ userId: user.id }, "cannot configure default desktop ide", e);
-                        });
-                }
-            }
             //#endregion
 
             const billingTier = await this.entitlementService.getBillingTier(user);

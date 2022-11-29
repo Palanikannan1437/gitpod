@@ -92,6 +92,7 @@ export interface ResolveStartWorkspaceSpecResponse {
   supervisorImage: string;
   webImage: string;
   ideImageLayers: string[];
+  setDefaultIde: string;
 }
 
 function createBaseGetConfigRequest(): GetConfigRequest {
@@ -315,7 +316,7 @@ export const ResolveStartWorkspaceSpecRequest = {
 };
 
 function createBaseResolveStartWorkspaceSpecResponse(): ResolveStartWorkspaceSpecResponse {
-  return { envvars: [], supervisorImage: "", webImage: "", ideImageLayers: [] };
+  return { envvars: [], supervisorImage: "", webImage: "", ideImageLayers: [], setDefaultIde: "" };
 }
 
 export const ResolveStartWorkspaceSpecResponse = {
@@ -331,6 +332,9 @@ export const ResolveStartWorkspaceSpecResponse = {
     }
     for (const v of message.ideImageLayers) {
       writer.uint32(34).string(v!);
+    }
+    if (message.setDefaultIde !== "") {
+      writer.uint32(42).string(message.setDefaultIde);
     }
     return writer;
   },
@@ -354,6 +358,9 @@ export const ResolveStartWorkspaceSpecResponse = {
         case 4:
           message.ideImageLayers.push(reader.string());
           break;
+        case 5:
+          message.setDefaultIde = reader.string();
+          break;
         default:
           reader.skipType(tag & 7);
           break;
@@ -368,6 +375,7 @@ export const ResolveStartWorkspaceSpecResponse = {
       supervisorImage: isSet(object.supervisorImage) ? String(object.supervisorImage) : "",
       webImage: isSet(object.webImage) ? String(object.webImage) : "",
       ideImageLayers: Array.isArray(object?.ideImageLayers) ? object.ideImageLayers.map((e: any) => String(e)) : [],
+      setDefaultIde: isSet(object.setDefaultIde) ? String(object.setDefaultIde) : "",
     };
   },
 
@@ -385,6 +393,7 @@ export const ResolveStartWorkspaceSpecResponse = {
     } else {
       obj.ideImageLayers = [];
     }
+    message.setDefaultIde !== undefined && (obj.setDefaultIde = message.setDefaultIde);
     return obj;
   },
 
@@ -394,6 +403,7 @@ export const ResolveStartWorkspaceSpecResponse = {
     message.supervisorImage = object.supervisorImage ?? "";
     message.webImage = object.webImage ?? "";
     message.ideImageLayers = object.ideImageLayers?.map((e) => e) || [];
+    message.setDefaultIde = object.setDefaultIde ?? "";
     return message;
   },
 };

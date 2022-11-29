@@ -50,4 +50,5 @@ message ResolveStartWorkspaceSpecResponse {
     string supervisor_image = 2;
     string web_image= 3;
     repeated string ide_image_layers = 4;
+    string set_default_ide = 5;
 }
