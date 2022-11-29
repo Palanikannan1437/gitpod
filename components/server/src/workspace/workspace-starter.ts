@@ -358,6 +358,17 @@ export class WorkspaceStarter {
             }
 
             // call here
+            const workspaceType =
+                workspace.type === "prebuild"
+                    ? IdeServiceApi.WorkspaceType.PREBUILD
+                    : IdeServiceApi.WorkspaceType.REGULAR;
+
+            const req: IdeServiceApi.Resolve = {
+                type: workspaceType,
+                context: JSON.stringify(workspace.context),
+                ideSettings: JSON.stringify(user.additionalData?.ideSettings),
+                workspaceConfig: JSON.stringify(workspace.config),
+            };
             const ideConfig = await this.ideService.resolveStartWorkspaceSpec(req);
             // extract
 
