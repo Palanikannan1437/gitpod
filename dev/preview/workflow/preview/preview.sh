@@ -28,7 +28,6 @@ fi
 
 ensure_gcloud_auth
 
-leeway run dev/preview:create-preview
-leeway run dev/preview:build
+leeway run dev/preview:create-preview dev/preview:build
 previewctl install-context --gcp-service-account "${PREVIEW_ENV_DEV_SA_KEY_PATH}" --retry 30
-leeway run dev/preview:deploy-gitpod
+leeway run dev/preview:deploy-gitpod dev/preview:deploy-monitoring-satellite
