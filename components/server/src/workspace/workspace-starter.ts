@@ -109,7 +109,7 @@ import { MessageBusIntegration } from "./messagebus-integration";
 import * as path from "path";
 import * as grpc from "@grpc/grpc-js";
 import { IDEConfig, IDEService } from "../ide-service";
-import IdeServiceApi from "@gitpod/ide-service-api/lib/ide.pb";
+import * as IdeServiceApi from "@gitpod/ide-service-api/lib/ide.pb";
 import { IDEOption, IDEOptions } from "@gitpod/gitpod-protocol/lib/ide-protocol";
 import { Deferred } from "@gitpod/gitpod-protocol/lib/util/deferred";
 import { ExtendedUser } from "@gitpod/ws-manager/lib/constraints";
@@ -832,21 +832,78 @@ export class WorkspaceStarter {
             if (user.additionalData?.ideSettings && migrated) {
                 user.additionalData.ideSettings = migrated;
             }
+            // const ideChoice = user.additionalData?.ideSettings?.defaultIde;
+            // const useLatest = !!user.additionalData?.ideSettings?.useLatestVersion;
 
-            let workspaceType: IdeServiceApi.WorkspaceType;
+            // // TODO(cw): once we allow changing the IDE in the workspace config (i.e. .gitpod.yml), we must
+            // //           give that value precedence over the default choice.
+            // const configuration: WorkspaceInstanceConfiguration = {
+            //     ideImage: ideConfig.ideOptions.options[ideConfig.ideOptions.defaultIde].image,
+            //     supervisorImage: ideConfig.supervisorImage,
+            //     ideConfig: {
+            //         // We only check user setting because if code(insider) but desktopIde has no latestImage
+            //         // it still need to notice user that this workspace is using latest IDE
+            //         useLatest: user.additionalData?.ideSettings?.useLatestVersion,
+            //     },
+            // };
+
+            // if (!!ideChoice) {
+            //     const choose = chooseIDE(
+            //         ideChoice,
+            //         ideConfig.ideOptions,
+            //         useLatest,
+            //         this.authService.hasPermission(user, "ide-settings"),
+            //     );
+            //     configuration.ideImage = choose.ideImage;
+            //     configuration.desktopIdeImage = choose.desktopIdeImage;
+            //     configuration.desktopIdePluginImage = choose.desktopIdePluginImage;
+            // }
+
+            // const referrerIde = this.resolveReferrerIDE(workspace, user, ideConfig);
+            // if (referrerIde) {
+            //     configuration.desktopIdeImage = useLatest
+            //         ? referrerIde.option.latestImage ?? referrerIde.option.image
+            //         : referrerIde.option.image;
+            //     configuration.desktopIdePluginImage = useLatest
+            //         ? referrerIde.option.pluginLatestImage ?? referrerIde.option.pluginImage
+            //         : referrerIde.option.pluginImage;
+            //     if (!user.additionalData?.ideSettings) {
+            //         // A user does not have IDE settings configured yet configure it with a referrer ide as default.
+            //         const additionalData = user?.additionalData || {};
+            //         const settings = additionalData.ideSettings || {};
+            //         settings.settingVersion = "2.0";
+            //         settings.defaultIde = referrerIde.id;
+            //         additionalData.ideSettings = settings;
+            //         user.additionalData = additionalData;
+            //         this.userDB
+            //             .trace(ctx)
+            //             .updateUserPartial(user)
+            //             .catch((e) => {
+            //                 log.error({ userId: user.id }, "cannot configure default desktop ide", e);
+            //             });
+            //     }
+            // }
+
+            const configuration: WorkspaceInstanceConfiguration = {};
+            let workspaceType = IdeServiceApi.WorkspaceType.REGULAR;
             switch (workspace.type) {
-                case WorkspaceType.PREBUILD: {
-                    workspaceType = IdeServiceApi.WorkspaceType.Prebuild;
+                case "prebuild": {
+                    workspaceType = IdeServiceApi.WorkspaceType.PREBUILD;
                 }
             }
 
-            const req: ResolveStartWorkspaceSpecRequest = {
+            const req: IdeServiceApi.ResolveStartWorkspaceSpecRequest = {
                 type: workspaceType,
-                context: workspace.context,
-                // ideSettings: string;
-                // workspaceConfig: string;
+                context: JSON.stringify(workspace.context),
+                ideSettings: JSON.stringify(user.additionalData?.ideSettings),
+                workspaceConfig: JSON.stringify(workspace.config),
             };
-            await this.ideService.resolveStartWorkspaceSpec(req);
+            let resp = await this.ideService.resolveStartWorkspaceSpec(req);
+            configuration.ideImage = resp.webImage;
+            configuration.supervisorImage = resp.supervisorImage;
+            configuration.ideImageLayer = resp.ideImageLayers;
+            // configuration.sysEnvvars = resp.envvars.map()
+
             // call ide-service
             // remove ideConfig here
 
