@@ -41,7 +41,8 @@ enum WorkspaceType {
 message ResolveStartWorkspaceSpecRequest {
     WorkspaceType type = 1;
     string context = 2;
-    string user_setting = 3;
+    string ide_settings = 3;
+    string workspace_config = 4;
 }
 
 message ResolveStartWorkspaceSpecResponse {

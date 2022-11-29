@@ -179,6 +179,60 @@ type IDESettings struct {
 	UseLatestVersion bool   `json:"useLatestVersion,omitempty"`
 }
 
+type WithReferrerContext struct {
+	Referrer    string `json:"referrer,omitempty"`
+	ReferrerIde string `json:"referrerIde,omitempty"`
+}
+
+type JetBrainsPrebuilds struct {
+	Version string `json:"version,omitempty"`
+}
+
+type JetBrainsProductConfig struct {
+	Prebuilds JetBrainsPrebuilds `json:"prebuilds,omitempty"`
+	Vmoptions string             `json:"vmoptions,omitempty"`
+}
+
+type JetBrainsConfig struct {
+	Intellij *JetBrainsProductConfig `json:"intellij,omitempty"`
+	Goland   *JetBrainsProductConfig `json:"goland,omitempty"`
+	Pycharm  *JetBrainsProductConfig `json:"pycharm,omitempty"`
+	Phpstorm *JetBrainsProductConfig `json:"phpstorm,omitempty"`
+	Rubymine *JetBrainsProductConfig `json:"rubymine,omitempty"`
+	Webstorm *JetBrainsProductConfig `json:"webstorm,omitempty"`
+	Rider    *JetBrainsProductConfig `json:"rider,omitempty"`
+	Clion    *JetBrainsProductConfig `json:"clion,omitempty"`
+}
+
+type WorkspaceConfig struct {
+	Jetbrains JetBrainsConfig `json:"jetbrains,omitempty"`
+}
+
 func (s *IDEServiceServer) resolveStartWorkspaceSpec(ctx context.Context, req *api.ResolveStartWorkspaceSpecRequest) (*api.ResolveStartWorkspaceSpecResponse, error) {
+	var wsCfg WorkspaceConfig
+	var wsCtx WithReferrerContext
+	var ideSettings IDESettings
+
+	err := json.Unmarshal([]byte(req.WorkspaceConfig), &wsCfg)
+	if err != nil {
+		// todo(af): define default
+		log.WithError(err).Error("failed to parse workspace config")
+		return &api.ResolveStartWorkspaceSpecResponse{}, nil
+	}
+
+	err = json.Unmarshal([]byte(req.Context), &wsCtx)
+	if err != nil {
+		// todo(af): define default
+		log.WithError(err).Error("failed to parse context")
+		return &api.ResolveStartWorkspaceSpecResponse{}, nil
+	}
+
+	err = json.Unmarshal([]byte(req.WorkspaceConfig), &ideSettings)
+	if err != nil {
+		// todo(af): define default
+		log.WithError(err).Error("failed to parse ide settings")
+		return &api.ResolveStartWorkspaceSpecResponse{}, nil
+	}
+
 	return &api.ResolveStartWorkspaceSpecResponse{}, nil
 }

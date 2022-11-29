@@ -83,7 +83,8 @@ export interface EnvironmentVariable {
 export interface ResolveStartWorkspaceSpecRequest {
   type: WorkspaceType;
   context: string;
-  userSetting: string;
+  ideSettings: string;
+  workspaceConfig: string;
 }
 
 export interface ResolveStartWorkspaceSpecResponse {
@@ -238,7 +239,7 @@ export const EnvironmentVariable = {
 };
 
 function createBaseResolveStartWorkspaceSpecRequest(): ResolveStartWorkspaceSpecRequest {
-  return { type: WorkspaceType.REGULAR, context: "", userSetting: "" };
+  return { type: WorkspaceType.REGULAR, context: "", ideSettings: "", workspaceConfig: "" };
 }
 
 export const ResolveStartWorkspaceSpecRequest = {
@@ -249,8 +250,11 @@ export const ResolveStartWorkspaceSpecRequest = {
     if (message.context !== "") {
       writer.uint32(18).string(message.context);
     }
-    if (message.userSetting !== "") {
-      writer.uint32(26).string(message.userSetting);
+    if (message.ideSettings !== "") {
+      writer.uint32(26).string(message.ideSettings);
+    }
+    if (message.workspaceConfig !== "") {
+      writer.uint32(34).string(message.workspaceConfig);
     }
     return writer;
   },
@@ -269,7 +273,10 @@ export const ResolveStartWorkspaceSpecRequest = {
           message.context = reader.string();
           break;
         case 3:
-          message.userSetting = reader.string();
+          message.ideSettings = reader.string();
+          break;
+        case 4:
+          message.workspaceConfig = reader.string();
           break;
         default:
           reader.skipType(tag & 7);
@@ -283,7 +290,8 @@ export const ResolveStartWorkspaceSpecRequest = {
     return {
       type: isSet(object.type) ? workspaceTypeFromJSON(object.type) : WorkspaceType.REGULAR,
       context: isSet(object.context) ? String(object.context) : "",
-      userSetting: isSet(object.userSetting) ? String(object.userSetting) : "",
+      ideSettings: isSet(object.ideSettings) ? String(object.ideSettings) : "",
+      workspaceConfig: isSet(object.workspaceConfig) ? String(object.workspaceConfig) : "",
     };
   },
 
@@ -291,7 +299,8 @@ export const ResolveStartWorkspaceSpecRequest = {
     const obj: any = {};
     message.type !== undefined && (obj.type = workspaceTypeToJSON(message.type));
     message.context !== undefined && (obj.context = message.context);
-    message.userSetting !== undefined && (obj.userSetting = message.userSetting);
+    message.ideSettings !== undefined && (obj.ideSettings = message.ideSettings);
+    message.workspaceConfig !== undefined && (obj.workspaceConfig = message.workspaceConfig);
     return obj;
   },
 
@@ -299,7 +308,8 @@ export const ResolveStartWorkspaceSpecRequest = {
     const message = createBaseResolveStartWorkspaceSpecRequest();
     message.type = object.type ?? WorkspaceType.REGULAR;
     message.context = object.context ?? "";
-    message.userSetting = object.userSetting ?? "";
+    message.ideSettings = object.ideSettings ?? "";
+    message.workspaceConfig = object.workspaceConfig ?? "";
     return message;
   },
 };
