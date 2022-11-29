@@ -884,13 +884,10 @@ export class WorkspaceStarter {
             //     }
             // }
 
-            const configuration: WorkspaceInstanceConfiguration = {};
-            let workspaceType = IdeServiceApi.WorkspaceType.REGULAR;
-            switch (workspace.type) {
-                case "prebuild": {
-                    workspaceType = IdeServiceApi.WorkspaceType.PREBUILD;
-                }
-            }
+            const workspaceType =
+                workspace.type === "prebuild"
+                    ? IdeServiceApi.WorkspaceType.PREBUILD
+                    : IdeServiceApi.WorkspaceType.REGULAR;
 
             const req: IdeServiceApi.ResolveStartWorkspaceSpecRequest = {
                 type: workspaceType,
@@ -899,10 +896,14 @@ export class WorkspaceStarter {
                 workspaceConfig: JSON.stringify(workspace.config),
             };
             let resp = await this.ideService.resolveStartWorkspaceSpec(req);
-            configuration.ideImage = resp.webImage;
-            configuration.supervisorImage = resp.supervisorImage;
-            configuration.ideImageLayer = resp.ideImageLayers;
-            // configuration.sysEnvvars = resp.envvars.map()
+            const envvars = {} as { [key: string]: string };
+            resp.envvars.forEach((envvar) => (envvars[envvar.name] = envvar.value));
+            const configuration: WorkspaceInstanceConfiguration = {
+                ideImage: resp.webImage,
+                supervisorImage: resp.supervisorImage,
+                ideImageLayer: resp.ideImageLayers,
+                sysEnvvars: envvars,
+            };
 
             // call ide-service
             // remove ideConfig here
@@ -1672,8 +1673,6 @@ export class WorkspaceStarter {
         spec.setInitializer((await initializerPromise).initializer);
         const startWorkspaceSpecIDEImage = new IDEImage();
         startWorkspaceSpecIDEImage.setWebRef(ideImage);
-        startWorkspaceSpecIDEImage.setDesktopRef(instance.configuration?.desktopIdeImage || "");
-        startWorkspaceSpecIDEImage.setDesktopPluginRef(instance.configuration?.desktopIdePluginImage || "");
         startWorkspaceSpecIDEImage.setSupervisorRef(instance.configuration?.supervisorImage || "");
         spec.setIdeImage(startWorkspaceSpecIDEImage);
         spec.setDeprecatedIdeImage(ideImage);
