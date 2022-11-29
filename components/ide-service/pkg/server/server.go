@@ -174,6 +174,11 @@ func grpcProbe(cfg baseserver.ServerConfiguration) func() error {
 	}
 }
 
+type IDESettings struct {
+	DefaultIde       string `json:"defaultIde,omitempty"`
+	UseLatestVersion bool   `json:"useLatestVersion,omitempty"`
+}
+
 func (s *IDEServiceServer) resolveStartWorkspaceSpec(ctx context.Context, req *api.ResolveStartWorkspaceSpecRequest) (*api.ResolveStartWorkspaceSpecResponse, error) {
 	return &api.ResolveStartWorkspaceSpecResponse{}, nil
 }
