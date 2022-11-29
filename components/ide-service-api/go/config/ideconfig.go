@@ -56,13 +56,13 @@ type IDEOption struct {
 	// PluginLatestImage ref for the latest IDE image, this image ref always resolve to digest.
 	PluginLatestImage string `json:"pluginLatestImage,omitempty"`
 	// ImageVersion the semantic version of the IDE image.
-	ImageVersion string `json:"versionImage,omitempty"`
+	ImageVersion string `json:"imageVersion,omitempty"`
 	// LatestImageVersion the semantic version of the latest IDE image.
-	LatestImageVersion string `json:"versionLatestImage,omitempty"`
+	LatestImageVersion string `json:"latestVersionImage,omitempty"`
 	// ImageSourceCommit the source commit of the IDE image.
-	ImageSourceCommit string `json:"sourceCommitImage,omitempty"`
+	ImageSourceCommit string `json:"imageSourceCommit,omitempty"`
 	// LatestImageSourceCommit the source commit of the latest IDE image.
-	LatestImageSourceCommit string `json:"sourceCommitLatestImage,omitempty"`
+	LatestImageSourceCommit string `json:"latestImageSourceCommit,omitempty"`
 }
 
 type IDEClient struct {
