@@ -208,7 +208,7 @@ type WorkspaceConfig struct {
 	Jetbrains *JetBrainsConfig `json:"jetbrains,omitempty"`
 }
 
-func (s *IDEServiceServer) resolveStartWorkspaceSpec(ctx context.Context, req *api.ResolveStartWorkspaceSpecRequest) (resp *api.ResolveStartWorkspaceSpecResponse, err error) {
+func (s *IDEServiceServer) ResolveStartWorkspaceSpec(ctx context.Context, req *api.ResolveStartWorkspaceSpecRequest) (resp *api.ResolveStartWorkspaceSpecResponse, err error) {
 	resp = &api.ResolveStartWorkspaceSpecResponse{
 		SupervisorImage: s.ideConfig.SupervisorImage,
 	}
@@ -253,13 +253,30 @@ func (s *IDEServiceServer) resolveStartWorkspaceSpec(ctx context.Context, req *a
 
 	chosenIDE := defaultIde
 
+	getIDEImage := func(ideOption *config.IDEOption, useLatest bool) string {
+		if useLatest && ideOption.LatestImage != "" {
+			return ideOption.LatestImage
+		}
+
+		return ideOption.Image
+	}
+
+	getPluginImage := func(ideOption *config.IDEOption, useLatest bool) string {
+		if useLatest && ideOption.PluginLatestImage != "" {
+			return ideOption.PluginLatestImage
+		}
+
+		return ideOption.PluginImage
+	}
+
 	if chosenIDEName != "" && s.ideConfig.IdeOptions.Options[chosenIDEName] != nil {
 		chosenIDE = s.ideConfig.IdeOptions.Options[chosenIDEName]
 	}
 	// always put web ide layer
 
 	if chosenIDE.Type == config.IDETypeDesktop {
-		// put desktop
+		resp.IdeImageLayers = append(resp.IdeImageLayers, getIDEImage(chosenIDE, chosenIDEVersion))
+		// Handle Plugin image here
 	}
 	// const defaultIDEOption = ideOptions.options[ideOptions.defaultIde];
 	// const defaultIdeImage = useLatest ? defaultIDEOption.latestImage ?? defaultIDEOption.image : defaultIDEOption.image;

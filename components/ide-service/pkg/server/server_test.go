@@ -23,5 +23,5 @@ func TestResolveStartWorkspaceSpec(t *testing.T) {
 		IDEConfigPath: "",
 	}
 	server := New(cfg)
-	server.resolveStartWorkspaceSpec(ctx, &api.ResolveStartWorkspaceSpecRequest{})
+	server.ResolveStartWorkspaceSpec(ctx, &api.ResolveStartWorkspaceSpecRequest{})
 }
