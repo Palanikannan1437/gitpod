@@ -208,6 +208,41 @@ type WorkspaceConfig struct {
 	Jetbrains *JetBrainsConfig `json:"jetbrains,omitempty"`
 }
 
+func (s *IDEServiceServer) resolveReferrerIDE(wsCtx WithReferrerContext, ideSettings IDESettings) (config.IDEOption, bool) {
+	if wsCtx.Referrer == "" || wsCtx.ReferrerIde == "" {
+		return config.IDEOption{}, false
+	}
+
+	client, ok := s.ideConfig.IdeOptions.Clients[wsCtx.Referrer]
+	if !ok {
+		return config.IDEOption{}, false
+	}
+
+	providedIde := wsCtx.ReferrerIde
+	providedOption, ok := s.ideConfig.IdeOptions.Options[providedIde]
+	if !ok {
+		return config.IDEOption{}, false
+	}
+
+	hasDesktopIde := false
+	for _, desktopIde := range client.DesktopIDEs {
+		if desktopIde == providedIde {
+			hasDesktopIde = true
+		}
+	}
+
+	if hasDesktopIde {
+		return providedOption, true
+	}
+
+	defaultDesktopIdeOption, ok := s.ideConfig.IdeOptions.Options[client.DefaultDesktopIDE]
+	if !ok {
+		return config.IDEOption{}, false
+	}
+
+	return defaultDesktopIdeOption, true
+}
+
 func (s *IDEServiceServer) ResolveStartWorkspaceSpec(ctx context.Context, req *api.ResolveStartWorkspaceSpecRequest) (resp *api.ResolveStartWorkspaceSpecResponse, err error) {
 	resp = &api.ResolveStartWorkspaceSpecResponse{
 		SupervisorImage: s.ideConfig.SupervisorImage,
@@ -253,7 +288,7 @@ func (s *IDEServiceServer) ResolveStartWorkspaceSpec(ctx context.Context, req *a
 
 	chosenIDE := defaultIde
 
-	getIDEImage := func(ideOption *config.IDEOption, useLatest bool) string {
+	getIDEImage := func(ideOption config.IDEOption, useLatest bool) string {
 		if useLatest && ideOption.LatestImage != "" {
 			return ideOption.LatestImage
 		}
@@ -261,7 +296,7 @@ func (s *IDEServiceServer) ResolveStartWorkspaceSpec(ctx context.Context, req *a
 		return ideOption.Image
 	}
 
-	getPluginImage := func(ideOption *config.IDEOption, useLatest bool) string {
+	getPluginImage := func(ideOption config.IDEOption, useLatest bool) string {
 		if useLatest && ideOption.PluginLatestImage != "" {
 			return ideOption.PluginLatestImage
 		}
@@ -269,45 +304,37 @@ func (s *IDEServiceServer) ResolveStartWorkspaceSpec(ctx context.Context, req *a
 		return ideOption.PluginImage
 	}
 
-	if chosenIDEName != "" && s.ideConfig.IdeOptions.Options[chosenIDEName] != nil {
-		chosenIDE = s.ideConfig.IdeOptions.Options[chosenIDEName]
-	}
-	// always put web ide layer
+	// rename x
+	x, ok := s.ideConfig.IdeOptions.Options[chosenIDEName]
 
-	if chosenIDE.Type == config.IDETypeDesktop {
-		resp.IdeImageLayers = append(resp.IdeImageLayers, getIDEImage(chosenIDE, chosenIDEVersion))
-		// Handle Plugin image here
+	if chosenIDEName != "" && ok {
+		chosenIDE = x
 	}
-	// const defaultIDEOption = ideOptions.options[ideOptions.defaultIde];
-	// const defaultIdeImage = useLatest ? defaultIDEOption.latestImage ?? defaultIDEOption.image : defaultIDEOption.image;
-	// const data: { desktopIdeImage?: string; desktopIdePluginImage?: string; ideImage: string } = {
-	// 	ideImage: defaultIdeImage,
-	// };
-	// const chooseOption = ideOptions.options[ideChoice] ?? defaultIDEOption;
-	// const isDesktopIde = chooseOption.type === "desktop";
-	// if (isDesktopIde) {
-	// 	data.desktopIdeImage = useLatest ? chooseOption?.latestImage ?? chooseOption?.image : chooseOption?.image;
-	// 	data.desktopIdePluginImage = useLatest
-	// 		? chooseOption?.pluginLatestImage ?? chooseOption?.pluginImage
-	// 		: chooseOption?.pluginImage;
-	// 	if (hasIdeSettingPerm) {
-	// 		data.desktopIdeImage = data.desktopIdeImage || ideChoice;
-	// 	}
-	// } else {
-	// 	data.ideImage = useLatest ? chooseOption?.latestImage ?? chooseOption?.image : chooseOption?.image;
-	// 	if (hasIdeSettingPerm) {
-	// 		data.ideImage = data.ideImage || ideChoice;
-	// 	}
-	// }
-	// if (!data.ideImage) {
-	// 	data.ideImage = defaultIdeImage;
-	// 	// throw new Error("cannot choose correct browser ide");
-	// }
-	// return data;
-	//             configuration.ideImage = choose.ideImage;
-	//             configuration.desktopIdeImage = choose.desktopIdeImage;
-	//             configuration.desktopIdePluginImage = choose.desktopIdePluginImage;
-	//         }
+
+	// we always need WebImage for when the user chooses a desktop ide
+	resp.WebImage = getIDEImage(defaultIde, chosenIDEVersion)
+
+	var desktopImageLayer string
+	var desktopPluginImageLayer string
+	if chosenIDE.Type == config.IDETypeDesktop {
+		desktopImageLayer = getIDEImage(chosenIDE, chosenIDEVersion)
+		desktopPluginImageLayer = getPluginImage(chosenIDE, chosenIDEVersion)
+
+	} else {
+		resp.WebImage = getIDEImage(chosenIDE, chosenIDEVersion)
+	}
+
+	referrer, ok := s.resolveReferrerIDE(wsCtx, ideSettings)
+	if ok {
+		desktopImageLayer = getIDEImage(referrer, chosenIDEVersion)
+		desktopPluginImageLayer = getIDEImage(referrer, chosenIDEVersion)
+	}
+
+	resp.IdeImageLayers = append(resp.IdeImageLayers, desktopImageLayer)
+
+	if desktopPluginImageLayer != "" {
+		resp.IdeImageLayers = append(resp.IdeImageLayers, desktopPluginImageLayer)
+	}
 
 	return resp, nil
 }

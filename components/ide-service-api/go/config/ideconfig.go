@@ -18,7 +18,7 @@ type IDEConfig struct {
 
 type IDEOptions struct {
 	// Options is a list of available IDEs.
-	Options map[string]*IDEOption `json:"options"`
+	Options map[string]IDEOption `json:"options"`
 	// DefaultIde when the user has not specified one.
 	DefaultIde string `json:"defaultIde"`
 	// DefaultDesktopIde when the user has not specified one.
