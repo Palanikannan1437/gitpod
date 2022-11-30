@@ -11,6 +11,7 @@ import * as _m0 from "protobufjs/minimal";
 export const protobufPackage = "ide_service_api";
 
 /**
+ * TODO: import type from other packages
  * WorkspaceType specifies the purpose/use of a workspace. Different workspace types are handled differently by all parts of the system.
  * copied from https://github.com/gitpod-io/gitpod/blob/a7f35378326ca5ec41aab1a48418949070a9b37a/components/ws-manager-api/core.proto#L660-L675
  */
@@ -74,7 +75,10 @@ export interface GetConfigResponse {
   content: string;
 }
 
-/** EnvironmentVariable describes an env var as key/value pair */
+/**
+ * TODO: import type from other packages
+ * EnvironmentVariable describes an env var as key/value pair
+ */
 export interface EnvironmentVariable {
   name: string;
   value: string;

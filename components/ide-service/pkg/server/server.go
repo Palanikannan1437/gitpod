@@ -243,8 +243,8 @@ func (s *IDEServiceServer) resolveReferrerIDE(wsCtx WorkspaceContext, ideSetting
 	return defaultDesktopIdeOption, true
 }
 
-func (s *IDEServiceServer) ResolveStartWorkspaceSpec(ctx context.Context, req *api.ResolveStartWorkspaceSpecRequest) (resp *api.ResolveStartWorkspaceSpecResponse, err error) {
-	resp = &api.ResolveStartWorkspaceSpecResponse{
+func (s *IDEServiceServer) ResolveWorkspaceConfig(ctx context.Context, req *api.ResolveWorkspaceConfigRequest) (resp *api.ResolveWorkspaceConfigResponse, err error) {
+	resp = &api.ResolveWorkspaceConfigResponse{
 		SupervisorImage: s.ideConfig.SupervisorImage,
 	}
 
@@ -334,6 +334,15 @@ func (s *IDEServiceServer) ResolveStartWorkspaceSpec(ctx context.Context, req *a
 	if desktopPluginImageLayer != "" {
 		resp.IdeImageLayers = append(resp.IdeImageLayers, desktopPluginImageLayer)
 	}
+
+	// TODO
+	// const ideAlias = user.additionalData?.ideSettings?.defaultIde;
+	// if (ideAlias && ideConfig.ideOptions.options[ideAlias]) {
+	//    const ideAliasEnv = new EnvironmentVariable();
+	//      ideAliasEnv.setName("GITPOD_IDE_ALIAS");
+	//     ideAliasEnv.setValue(ideAlias);
+	//     envvars.push(ideAliasEnv);
+	// }
 
 	return resp, nil
 }

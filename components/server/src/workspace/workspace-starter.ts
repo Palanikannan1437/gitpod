@@ -108,9 +108,9 @@ import { ImageSourceProvider } from "./image-source-provider";
 import { MessageBusIntegration } from "./messagebus-integration";
 import * as path from "path";
 import * as grpc from "@grpc/grpc-js";
-import { IDEConfig, IDEService } from "../ide-service";
+import { IDEService } from "../ide-service";
 import * as IdeServiceApi from "@gitpod/ide-service-api/lib/ide.pb";
-import { IDEOption, IDEOptions } from "@gitpod/gitpod-protocol/lib/ide-protocol";
+import { IDEOption } from "@gitpod/gitpod-protocol/lib/ide-protocol";
 import { Deferred } from "@gitpod/gitpod-protocol/lib/util/deferred";
 import { ExtendedUser } from "@gitpod/ws-manager/lib/constraints";
 import {
@@ -140,7 +140,6 @@ export interface StartWorkspaceOptions {
 const MAX_INSTANCE_START_RETRIES = 2;
 const INSTANCE_START_RETRY_INTERVAL_SECONDS = 2;
 
-// TODO(ak) move to IDE service
 export const migrationIDESettings = (user: User) => {
     if (!user?.additionalData?.ideSettings || user.additionalData.ideSettings.settingVersion === "2.0") {
         return;
@@ -322,19 +321,7 @@ export class WorkspaceStarter {
                 }
             }
 
-            const workspaceType =
-                workspace.type === "prebuild"
-                    ? IdeServiceApi.WorkspaceType.PREBUILD
-                    : IdeServiceApi.WorkspaceType.REGULAR;
-
-            const req: IdeServiceApi.ResolveWorkspaceConfigRequest = {
-                type: workspaceType,
-                context: JSON.stringify(workspace.context),
-                ideSettings: JSON.stringify(user.additionalData?.ideSettings),
-                workspaceConfig: JSON.stringify(workspace.config),
-            };
-            const ideConfig = await this.ideService.resolveStartWorkspaceSpec(req);
-
+            const ideConfig = await this.resolveIDEConfiguration(workspace, user);
             // create and store instance
             let instance = await this.workspaceDb
                 .trace({ span })
@@ -346,7 +333,7 @@ export class WorkspaceStarter {
                         user,
                         project,
                         options.excludeFeatureFlags || [],
-                        ideConfig
+                        ideConfig,
                     ),
                 );
             span.log({ newInstance: instance.id });
@@ -414,6 +401,19 @@ export class WorkspaceStarter {
         }
     }
 
+    private async resolveIDEConfiguration(workspace: Workspace, user: User) {
+        const workspaceType =
+            workspace.type === "prebuild" ? IdeServiceApi.WorkspaceType.PREBUILD : IdeServiceApi.WorkspaceType.REGULAR;
+
+        const req: IdeServiceApi.ResolveWorkspaceConfigRequest = {
+            type: workspaceType,
+            context: JSON.stringify(workspace.context),
+            ideSettings: JSON.stringify(user.additionalData?.ideSettings),
+            workspaceConfig: JSON.stringify(workspace.config),
+        };
+        return await this.ideService.resolveStartWorkspaceSpec(req);
+    }
+
     public async stopWorkspaceInstance(
         ctx: TraceContext,
         instanceId: string,
@@ -454,7 +454,7 @@ export class WorkspaceStarter {
         workspace: Workspace,
         user: User,
         lastValidWorkspaceInstanceId: string,
-        ideConfig: IDEConfig,
+        ideConfig: IdeServiceApi.ResolveWorkspaceConfigResponse,
         userEnvVars: UserEnvVar[],
         projectEnvVars: ProjectEnvVar[],
         rethrow?: boolean,
@@ -802,11 +802,9 @@ export class WorkspaceStarter {
         user: User,
         project: Project | undefined,
         excludeFeatureFlags: NamedWorkspaceFeatureFlag[],
-        ideConfig: IdeServiceApi.ResolveWorkspaceConfigResponse
+        ideConfig: IdeServiceApi.ResolveWorkspaceConfigResponse,
     ): Promise<WorkspaceInstance> {
         const span = TraceContext.startSpan("newInstance", ctx);
-        //#region IDE resolution TODO(ak) move to IDE service
-
         try {
             const migrated = migrationIDESettings(user);
             if (user.additionalData?.ideSettings && migrated) {
@@ -822,8 +820,6 @@ export class WorkspaceStarter {
                     useLatest: user.additionalData?.ideSettings?.useLatestVersion,
                 },
             };
-
-            //#endregion
 
             const billingTier = await this.entitlementService.getBillingTier(user);
 
@@ -970,41 +966,6 @@ export class WorkspaceStarter {
         if (psiEnabled && billingTier === "paid") {
             featureFlags.push("workspace_psi");
         }
-    }
-
-    // TODO(ak) move to IDE service
-    protected resolveReferrerIDE(
-        workspace: Workspace,
-        user: User,
-        ideConfig: IDEConfig,
-    ): { id: string; option: IDEOption } | undefined {
-        if (!WithReferrerContext.is(workspace.context)) {
-            return undefined;
-        }
-        const referrer = ideConfig.ideOptions.clients?.[workspace.context.referrer];
-        if (!referrer) {
-            return undefined;
-        }
-
-        const providedIde = workspace.context.referrerIde;
-        const providedOption = providedIde && ideConfig.ideOptions.options[providedIde];
-        if (providedOption && referrer.desktopIDEs?.some((ide) => ide === providedIde)) {
-            return { id: providedIde, option: providedOption };
-        }
-
-        const defaultDesktopIde = user.additionalData?.ideSettings?.defaultDesktopIde;
-        const userOption = defaultDesktopIde && ideConfig.ideOptions.options[defaultDesktopIde];
-        if (userOption && referrer.desktopIDEs?.some((ide) => ide === defaultDesktopIde)) {
-            return { id: defaultDesktopIde, option: userOption };
-        }
-
-        const defaultIde = referrer.defaultDesktopIDE;
-        const defaultOption = defaultIde && ideConfig.ideOptions.options[defaultIde];
-        if (defaultOption) {
-            return { id: defaultIde, option: defaultOption };
-        }
-
-        return undefined;
     }
 
     protected async prepareBuildRequest(
@@ -1347,7 +1308,7 @@ export class WorkspaceStarter {
         workspace: Workspace,
         instance: WorkspaceInstance,
         lastValidWorkspaceInstanceId: string,
-        ideConfig: IDEConfig,
+        ideConfig: IdeServiceApi.ResolveWorkspaceConfigResponse,
         userEnvVars: UserEnvVarValue[],
         projectEnvVars: ProjectEnvVar[],
     ): Promise<StartWorkspaceSpec> {
@@ -1390,14 +1351,6 @@ export class WorkspaceStarter {
             ev.setValue(e.value);
             envvars.push(ev);
         });
-
-        const ideAlias = user.additionalData?.ideSettings?.defaultIde;
-        if (ideAlias && ideConfig.ideOptions.options[ideAlias]) {
-            const ideAliasEnv = new EnvironmentVariable();
-            ideAliasEnv.setName("GITPOD_IDE_ALIAS");
-            ideAliasEnv.setValue(ideAlias);
-            envvars.push(ideAliasEnv);
-        }
 
         const contextUrlEnv = new EnvironmentVariable();
         contextUrlEnv.setName("GITPOD_WORKSPACE_CONTEXT_URL");
@@ -1573,24 +1526,27 @@ export class WorkspaceStarter {
             featureFlags = featureFlags.concat(["persistent_volume_claim"]);
         }
 
-        let ideImage: string;
-        if (!!instance.configuration?.ideImage) {
-            ideImage = instance.configuration?.ideImage;
-        } else {
-            ideImage = ideConfig.ideOptions.options[ideConfig.ideOptions.defaultIde].image;
+        const sysEnvvars: EnvironmentVariable[] = [];
+        for (const e of ideConfig.envvars) {
+            const ev = new EnvironmentVariable();
+            ev.setName(e.name);
+            ev.setValue(e.value);
+            sysEnvvars.push(ev);
         }
 
         const spec = new StartWorkspaceSpec();
         await createGitpodTokenPromise;
         spec.setEnvvarsList(envvars);
+        spec.setSysEnvvarsList(sysEnvvars);
         spec.setGit(this.createGitSpec(workspace, user));
         spec.setPortsList(ports);
         spec.setInitializer((await initializerPromise).initializer);
         const startWorkspaceSpecIDEImage = new IDEImage();
-        startWorkspaceSpecIDEImage.setWebRef(ideImage);
-        startWorkspaceSpecIDEImage.setSupervisorRef(instance.configuration?.supervisorImage || "");
+        startWorkspaceSpecIDEImage.setWebRef(ideConfig.webImage);
+        startWorkspaceSpecIDEImage.setSupervisorRef(ideConfig.supervisorImage);
         spec.setIdeImage(startWorkspaceSpecIDEImage);
-        spec.setDeprecatedIdeImage(ideImage);
+        spec.setIdeImageLayersList(ideConfig.ideImageLayers);
+        spec.setDeprecatedIdeImage(ideConfig.webImage);
         spec.setWorkspaceImage(instance.workspaceImage);
         spec.setWorkspaceLocation(workspace.config.workspaceLocation || checkoutLocation);
         spec.setFeatureFlagsList(this.toWorkspaceFeatureFlags(featureFlags));

@@ -24,6 +24,7 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// TODO: import type from other packages
 // WorkspaceType specifies the purpose/use of a workspace. Different workspace types are handled differently by all parts of the system.
 // copied from https://github.com/gitpod-io/gitpod/blob/a7f35378326ca5ec41aab1a48418949070a9b37a/components/ws-manager-api/core.proto#L660-L675
 type WorkspaceType int32
@@ -160,6 +161,7 @@ func (x *GetConfigResponse) GetContent() string {
 	return ""
 }
 
+// TODO: import type from other packages
 // EnvironmentVariable describes an env var as key/value pair
 type EnvironmentVariable struct {
 	state         protoimpl.MessageState
