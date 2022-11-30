@@ -249,7 +249,7 @@ func (s *IDEServiceServer) ResolveWorkspaceConfig(ctx context.Context, req *api.
 		SupervisorImage: s.ideConfig.SupervisorImage,
 	}
 
-	if req.Type == api.WorkspaceType_IMAGEBUILD {
+	if req.Type != api.WorkspaceType_REGULAR {
 		return resp, nil
 	}
 
@@ -275,10 +275,6 @@ func (s *IDEServiceServer) ResolveWorkspaceConfig(ctx context.Context, req *api.
 	if err != nil {
 		// todo(af): define default
 		log.WithError(err).Error("failed to parse ide settings")
-		return resp, nil
-	}
-	if req.Type == api.WorkspaceType_PREBUILD && wsConfig.Jetbrains != nil {
-		// do some logic
 		return resp, nil
 	}
 
@@ -330,10 +326,11 @@ func (s *IDEServiceServer) ResolveWorkspaceConfig(ctx context.Context, req *api.
 		desktopPluginImageLayer = getIDEImage(referrer, chosenIDEVersion)
 	}
 
-	resp.IdeImageLayers = append(resp.IdeImageLayers, desktopImageLayer)
-
-	if desktopPluginImageLayer != "" {
-		resp.IdeImageLayers = append(resp.IdeImageLayers, desktopPluginImageLayer)
+	if desktopImageLayer != "" {
+		resp.IdeImageLayers = append(resp.IdeImageLayers, desktopImageLayer)
+		if desktopPluginImageLayer != "" {
+			resp.IdeImageLayers = append(resp.IdeImageLayers, desktopPluginImageLayer)
+		}
 	}
 
 	// TODO
