@@ -54,6 +54,8 @@ func (v version) Defaults(in interface{}) error {
 	}
 	cfg.Certificate.Kind = ObjectRefSecret
 	cfg.Certificate.Name = "https-certificates"
+	cfg.PersonalAccessTokenSigningKey.Kind = ObjectRefSecret
+	cfg.PersonalAccessTokenSigningKey.Name = "personal-access-token-signing-key"
 	cfg.Database.InCluster = pointer.Bool(true)
 	cfg.Metadata.Region = defaultMetadataRegion
 	cfg.Metadata.InstallationShortname = InstallationShortNameOldDefault // TODO(gpl): we're tied to "default" here because that's what we put into static bridges in the past
@@ -171,6 +173,9 @@ type Config struct {
 	ContainerRegistry ContainerRegistry `json:"containerRegistry" validate:"required"`
 
 	Certificate ObjectRef `json:"certificate" validate:"required"`
+
+	// Name of the kubernetes object to use for signature of Personal Access Tokens
+	PersonalAccessTokenSigningKey ObjectRef `json:"personalAccessTokenSigningKey" validate:"required"`
 
 	HTTPProxy *ObjectRef `json:"httpProxy,omitempty"`
 
