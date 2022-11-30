@@ -244,6 +244,7 @@ func (s *IDEServiceServer) resolveReferrerIDE(wsCtx WorkspaceContext, ideSetting
 }
 
 func (s *IDEServiceServer) ResolveWorkspaceConfig(ctx context.Context, req *api.ResolveWorkspaceConfigRequest) (resp *api.ResolveWorkspaceConfigResponse, err error) {
+	log.WithField("req", req).Debugf("receive ResolveWorkspaceConfig request")
 	resp = &api.ResolveWorkspaceConfigResponse{
 		SupervisorImage: s.ideConfig.SupervisorImage,
 	}
