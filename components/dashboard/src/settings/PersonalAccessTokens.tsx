@@ -476,10 +476,15 @@ function ListAccessTokensView() {
     const [tokens, setTokens] = useState<PersonalAccessToken[]>([]);
     const [tokenInfo, setTokenInfo] = useState<TokenInfo>();
     const [modalData, setModalData] = useState<{ token: PersonalAccessToken; action: TokenAction }>();
+    const [errorMsg, setErrorMsg] = useState("");
 
     async function loadTokens() {
-        const response = await personalAccessTokensService.listPersonalAccessTokens({});
-        setTokens(response.tokens);
+        try {
+            const response = await personalAccessTokensService.listPersonalAccessTokens({});
+            setTokens(response.tokens);
+        } catch (e) {
+            setErrorMsg(e.message);
+        }
     }
 
     useEffect(() => {
@@ -506,7 +511,7 @@ function ListAccessTokensView() {
             loadTokens();
             setModalData(undefined);
         } catch (e) {
-            // TODO: Handle error
+            setErrorMsg(e.message);
         }
     };
 
@@ -520,7 +525,7 @@ function ListAccessTokensView() {
             loadTokens();
             setModalData(undefined);
         } catch (e) {
-            // TODO: Handle error
+            setErrorMsg(e.message);
         }
     };
 
@@ -537,6 +542,13 @@ function ListAccessTokensView() {
                     </Link>
                 )}
             </div>
+            <>
+                {errorMsg.length > 0 && (
+                    <Alert type="error" className="mb-2">
+                        {errorMsg}
+                    </Alert>
+                )}
+            </>
             <>
                 {tokenInfo && (
                     <>
