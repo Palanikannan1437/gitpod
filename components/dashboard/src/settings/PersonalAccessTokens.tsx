@@ -28,6 +28,7 @@ import { ContextMenuEntry } from "../components/ContextMenu";
 import PillLabel from "../components/PillLabel";
 import dayjs from "dayjs";
 import { ItemFieldContextMenu } from "../components/ItemsList";
+import { SpinnerLoader, SpinnerOverlayLoader } from "../components/Loader";
 
 export default function PersonalAccessTokens() {
     const { enablePersonalAccessTokens } = useContext(FeatureFlagContext);
@@ -182,6 +183,7 @@ export function PersonalAccessTokenCreateView() {
     const params = useParams<{ tokenId?: string }>();
     const history = useHistory<TokenInfo>();
 
+    const [loading, setLoading] = useState(false);
     const [errorMsg, setErrorMsg] = useState("");
     const [editTokenID, setEditTokenID] = useState<string>();
     const [editToken, setEditToken] = useState<PersonalAccessToken>();
@@ -209,7 +211,7 @@ export function PersonalAccessTokenCreateView() {
                 }
                 // update UI to `edit style` immediately
                 setEditTokenID(tokenId);
-
+                setLoading(true);
                 const resp = await personalAccessTokensService.getPersonalAccessToken({ id: tokenId });
                 const token = resp.token!;
                 setEditToken(token);
@@ -220,6 +222,7 @@ export function PersonalAccessTokenCreateView() {
             } catch (e) {
                 setErrorMsg(e.message);
             }
+            setLoading(false);
         })();
     }, []);
 
@@ -331,82 +334,88 @@ export function PersonalAccessTokenCreateView() {
                         />
                     )}
                 </>
-                <div className="max-w-md mb-6">
-                    <div className="flex flex-col mb-4">
-                        <h3>{editTokenID ? "Edit" : "New"} Personal Access Token</h3>
-                        {editTokenID ? (
-                            <h2 className="text-gray-500 dark:text-gray-400">
-                                Update token name, expiration date, permissions, or regenerate token.
-                            </h2>
-                        ) : (
-                            <h2 className="text-gray-500 dark:text-gray-400">Create a new access token.</h2>
-                        )}
-                    </div>
-                    <div className="flex flex-col gap-4">
-                        <div>
-                            <h4>Token Name</h4>
-                            <input
-                                className="w-full"
-                                value={token.name}
-                                onChange={(e) => update({ name: e.target.value })}
-                                onKeyDown={(e) => {
-                                    if (e.key === "Enter") {
-                                        e.preventDefault();
-                                        handleConfirm();
-                                    }
-                                }}
-                                type="text"
-                                placeholder="Token Name"
-                            />
-                            <p className="text-gray-500 dark:text-gray-400 mt-2">
-                                The application name using the token or the purpose of the token.
-                            </p>
+                <SpinnerOverlayLoader content="loading access token" loading={loading}>
+                    <div className="mb-6">
+                        <div className="flex flex-col mb-4">
+                            <h3>{editTokenID ? "Edit" : "New"} Personal Access Token</h3>
+                            {editTokenID ? (
+                                <h2 className="text-gray-500 dark:text-gray-400">
+                                    Update token name, expiration date, permissions, or regenerate token.
+                                </h2>
+                            ) : (
+                                <h2 className="text-gray-500 dark:text-gray-400">
+                                    Create a new access token.
+                                </h2>
+                            )}
                         </div>
-                        {!editTokenID && (
-                            <DateSelector
-                                title="Expiration Date"
-                                description={`The token will expire on ${dayjs(token.expirationDate).format(
-                                    "MMM D, YYYY",
-                                )}`}
-                                options={TokenExpirationDays}
-                                value={TokenExpirationDays.find((i) => i.value === token.expirationDays)?.value}
-                                onChange={(value) => {
-                                    update({ expirationDays: value });
-                                }}
-                            />
-                        )}
-                        <div>
-                            <h4>Permission</h4>
-                            <div className="space-y-2">
-                                {AllPermissions.map((item) => (
-                                    <CheckBox
-                                        className=""
-                                        title={item.name}
-                                        desc={item.description}
-                                        checked={item.scopes.every((s) => token.scopes.has(s))}
-                                        onChange={(e) => {
-                                            if (e.target.checked) {
-                                                update({}, item.scopes);
-                                            } else {
-                                                update({}, undefined, item.scopes);
-                                            }
-                                        }}
-                                    />
-                                ))}
+                        <div className="flex flex-col gap-4">
+                            <div>
+                                <h4>Token Name</h4>
+                                <input
+                                    className="max-w-md"
+                                    value={token.name}
+                                    onChange={(e) => update({ name: e.target.value })}
+                                    onKeyDown={(e) => {
+                                        if (e.key === "Enter") {
+                                            e.preventDefault();
+                                            handleConfirm();
+                                        }
+                                    }}
+                                    type="text"
+                                    placeholder="Token Name"
+                                />
+                                <p className="text-gray-500 dark:text-gray-400 mt-2">
+                                    The application name using the token or the purpose of the token.
+                                </p>
+                            </div>
+                            {!editTokenID && (
+                                <DateSelector
+                                    title="Expiration Date"
+                                    description={`The token will expire on ${dayjs(token.expirationDate).format(
+                                        "MMM D, YYYY",
+                                    )}`}
+                                    options={TokenExpirationDays}
+                                    value={TokenExpirationDays.find((i) => i.value === token.expirationDays)?.value}
+                                    onChange={(value) => {
+                                        update({ expirationDays: value });
+                                    }}
+                                />
+                            )}
+                            <div>
+                                <h4>Permission</h4>
+                                <div className="space-y-2">
+                                    {AllPermissions.map((item) => (
+                                        <CheckBox
+                                            className=""
+                                            title={item.name}
+                                            desc={item.description}
+                                            checked={item.scopes.every((s) => token.scopes.has(s))}
+                                            onChange={(e) => {
+                                                if (e.target.checked) {
+                                                    update({}, item.scopes);
+                                                } else {
+                                                    update({}, undefined, item.scopes);
+                                                }
+                                            }}
+                                        />
+                                    ))}
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-                <div className="flex gap-2">
-                    {editTokenID && (
-                        <Link to={settingsPathPersonalAccessTokens}>
-                            <button className="secondary" onClick={handleConfirm}>
-                                Cancel
-                            </button>
-                        </Link>
-                    )}
-                    <button onClick={handleConfirm}>{editTokenID ? "Update" : "Create"} Personal Access Token</button>
-                </div>
+                    <div className="flex gap-2">
+                        {editTokenID && (
+                            <Link to={settingsPathPersonalAccessTokens}>
+                                <button className="secondary" onClick={handleConfirm}>
+                                    Cancel
+                                </button>
+                            </Link>
+                        )}
+                        <button onClick={handleConfirm}>
+                            {editTokenID ? "Update" : "Create"} Personal Access Token
+                        </button>
+                    </div>
+                </SpinnerOverlayLoader>
             </PageWithSettingsSubMenu>
         </div>
     );
@@ -473,6 +482,7 @@ interface TokenInfo {
 function ListAccessTokensView() {
     const location = useLocation();
 
+    const [loading, setLoading] = useState<boolean>(false);
     const [tokens, setTokens] = useState<PersonalAccessToken[]>([]);
     const [tokenInfo, setTokenInfo] = useState<TokenInfo>();
     const [modalData, setModalData] = useState<{ token: PersonalAccessToken; action: TokenAction }>();
@@ -480,11 +490,13 @@ function ListAccessTokensView() {
 
     async function loadTokens() {
         try {
+            setLoading(true);
             const response = await personalAccessTokensService.listPersonalAccessTokens({});
             setTokens(response.tokens);
         } catch (e) {
             setErrorMsg(e.message);
         }
+        setLoading(false);
     }
 
     useEffect(() => {
@@ -594,52 +606,62 @@ function ListAccessTokensView() {
                     </>
                 )}
             </>
-            {tokens.length === 0 ? (
-                <div className="bg-gray-100 dark:bg-gray-800 rounded-xl w-full py-28 flex flex-col items-center">
-                    <h3 className="text-center pb-3 text-gray-500 dark:text-gray-400">No Access Tokens</h3>
-                    <p className="text-center pb-6 text-gray-500 text-base w-96">
-                        Generate an access token for applications that need access to the Gitpod API.{" "}
-                    </p>
-                    <Link to={settingsPathPersonalAccessTokenCreate}>
-                        <button>New Access Token</button>
-                    </Link>
-                </div>
+            {loading ? (
+                <SpinnerLoader content="loading access token list" />
             ) : (
                 <>
-                    <div className="px-3 py-3 flex justify-between space-x-2 text-sm text-gray-400 mb-2 bg-gray-100 dark:bg-gray-800 rounded-xl">
-                        <h2 className="w-4/12">Token Name</h2>
-                        <h2 className="w-4/12">Permissions</h2>
-                        <h2 className="w-3/12">Expires</h2>
-                        <div className="w-1/12"></div>
-                    </div>
-                    {tokens.map((t: PersonalAccessToken) => (
-                        <TokenEntry
-                            key={t.id}
-                            token={t}
-                            menuEntries={[
-                                {
-                                    title: "Edit",
-                                    link: `${settingsPathPersonalAccessTokenEdit}/${t.id}`,
-                                },
-                                {
-                                    title: "Regenerate",
-                                    href: "",
-                                    customFontStyle:
-                                        "text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300",
-                                    onClick: () => setModalData({ token: t, action: TokenAction.Regerenrate }),
-                                },
-                                {
-                                    title: "Delete",
-                                    href: "",
-                                    customFontStyle:
-                                        "text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300",
-                                    onClick: () => setModalData({ token: t, action: TokenAction.Delete }),
-                                },
-                            ]}
-                        />
-                    ))}
+                    {tokens.length === 0 ? (
+                        <div className="bg-gray-100 dark:bg-gray-800 rounded-xl w-full py-28 flex flex-col items-center">
+                            <h3 className="text-center pb-3 text-gray-500 dark:text-gray-400">
+                                No Access Tokens (PAT)
+                            </h3>
+                            <p className="text-center pb-6 text-gray-500 text-base w-96">
+                                Generate a access token (PAT) for applications that need access to the Gitpod
+                                API.{" "}
+                            </p>
+                            <Link to={settingsPathPersonalAccessTokenCreate}>
+                                <button>New Access Token</button>
+                            </Link>
+                        </div>
+                    ) : (
+                        <>
+                            <div className="px-3 py-3 flex justify-between space-x-2 text-sm text-gray-400 mb-2 bg-gray-100 dark:bg-gray-800 rounded-xl">
+                                <h2 className="w-4/12">Token Name</h2>
+                                <h2 className="w-4/12">Permissions</h2>
+                                <h2 className="w-3/12">Expires</h2>
+                                <div className="w-1/12"></div>
+                            </div>
+                            {tokens.map((t: PersonalAccessToken) => (
+                                <TokenEntry
+                                    key={t.id}
+                                    token={t}
+                                    menuEntries={[
+                                        {
+                                            title: "Edit",
+                                            link: `${settingsPathPersonalAccessTokenEdit}/${t.id}`,
+                                        },
+                                        {
+                                            title: "Regenerate",
+                                            href: "",
+                                            customFontStyle:
+                                                "text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300",
+                                            onClick: () => setModalData({ token: t, action: TokenAction.Regerenrate }),
+                                        },
+                                        {
+                                            title: "Delete",
+                                            href: "",
+                                            customFontStyle:
+                                                "text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300",
+                                            onClick: () => setModalData({ token: t, action: TokenAction.Delete }),
+                                        },
+                                    ]}
+                                />
+                            ))}
+                        </>
+                    )}
                 </>
             )}
+
             {modalData?.action === TokenAction.Delete && (
                 <ShowTokenModal
                     token={modalData.token}
