@@ -321,7 +321,7 @@ export class WorkspaceStarter {
                 }
             }
 
-            const ideConfig = await this.resolveIDEConfiguration(workspace, user);
+            const ideConfig = await this.resolveIDEConfiguration(ctx, workspace, user);
             // create and store instance
             let instance = await this.workspaceDb
                 .trace({ span })
@@ -401,17 +401,40 @@ export class WorkspaceStarter {
         }
     }
 
-    private async resolveIDEConfiguration(workspace: Workspace, user: User) {
-        const workspaceType =
-            workspace.type === "prebuild" ? IdeServiceApi.WorkspaceType.PREBUILD : IdeServiceApi.WorkspaceType.REGULAR;
+    private async resolveIDEConfiguration(ctx: TraceContext, workspace: Workspace, user: User) {
+        const span = TraceContext.startSpan("resolveIDEConfiguration", ctx);
+        try {
+            const workspaceType =
+                workspace.type === "prebuild"
+                    ? IdeServiceApi.WorkspaceType.PREBUILD
+                    : IdeServiceApi.WorkspaceType.REGULAR;
 
-        const req: IdeServiceApi.ResolveWorkspaceConfigRequest = {
-            type: workspaceType,
-            context: JSON.stringify(workspace.context),
-            ideSettings: JSON.stringify(user.additionalData?.ideSettings),
-            workspaceConfig: JSON.stringify(workspace.config),
-        };
-        return await this.ideService.resolveStartWorkspaceSpec(req);
+            const req: IdeServiceApi.ResolveWorkspaceConfigRequest = {
+                type: workspaceType,
+                context: JSON.stringify(workspace.context),
+                ideSettings: JSON.stringify(user.additionalData?.ideSettings),
+                workspaceConfig: JSON.stringify(workspace.config),
+            };
+            const resp = await this.ideService.resolveWorkspaceConfig(req);
+            if (!user.additionalData?.ideSettings && resp.refererIde) {
+                // A user does not have IDE settings configured yet configure it with a referrer ide as default.
+                const additionalData = user?.additionalData || {};
+                const settings = additionalData.ideSettings || {};
+                settings.settingVersion = "2.0";
+                settings.defaultIde = resp.refererIde;
+                additionalData.ideSettings = settings;
+                user.additionalData = additionalData;
+                this.userDB
+                    .trace(ctx)
+                    .updateUserPartial(user)
+                    .catch((e: Error) => {
+                        log.error({ userId: user.id }, "cannot configure default desktop ide", e);
+                    });
+            }
+            return resp;
+        } finally {
+            span.finish();
+        }
     }
 
     public async stopWorkspaceInstance(

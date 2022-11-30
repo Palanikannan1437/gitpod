@@ -9,8 +9,8 @@ import { IDEOptions, IDEClient } from "@gitpod/gitpod-protocol/lib/ide-protocol"
 import {
     IDEServiceClient,
     IDEServiceDefinition,
-    ResolveStartWorkspaceSpecRequest,
-    ResolveStartWorkspaceSpecResponse,
+    ResolveWorkspaceConfigRequest,
+    ResolveWorkspaceConfigResponse,
 } from "@gitpod/ide-service-api/lib/ide.pb";
 import { inject, injectable } from "inversify";
 
@@ -42,8 +42,8 @@ export class IDEService {
         }
     }
 
-    async resolveStartWorkspaceSpec(req: ResolveStartWorkspaceSpecRequest): Promise<ResolveStartWorkspaceSpecResponse> {
-        return this.ideService.resolveStartWorkspaceSpec(req);
+    async resolveWorkspaceConfig(req: ResolveWorkspaceConfigRequest): Promise<ResolveWorkspaceConfigResponse> {
+        return this.ideService.resolveWorkspaceConfig(req);
     }
 
     resolveGitpodTasks(ws: Workspace): TaskConfig[] {

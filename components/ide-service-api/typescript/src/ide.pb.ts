@@ -96,7 +96,8 @@ export interface ResolveWorkspaceConfigResponse {
   supervisorImage: string;
   webImage: string;
   ideImageLayers: string[];
-  setDefaultIde: string;
+  /** control whether to configure default IDE for a user */
+  refererIde: string;
 }
 
 function createBaseGetConfigRequest(): GetConfigRequest {
@@ -320,7 +321,7 @@ export const ResolveWorkspaceConfigRequest = {
 };
 
 function createBaseResolveWorkspaceConfigResponse(): ResolveWorkspaceConfigResponse {
-  return { envvars: [], supervisorImage: "", webImage: "", ideImageLayers: [], setDefaultIde: "" };
+  return { envvars: [], supervisorImage: "", webImage: "", ideImageLayers: [], refererIde: "" };
 }
 
 export const ResolveWorkspaceConfigResponse = {
@@ -337,8 +338,8 @@ export const ResolveWorkspaceConfigResponse = {
     for (const v of message.ideImageLayers) {
       writer.uint32(34).string(v!);
     }
-    if (message.setDefaultIde !== "") {
-      writer.uint32(42).string(message.setDefaultIde);
+    if (message.refererIde !== "") {
+      writer.uint32(42).string(message.refererIde);
     }
     return writer;
   },
@@ -363,7 +364,7 @@ export const ResolveWorkspaceConfigResponse = {
           message.ideImageLayers.push(reader.string());
           break;
         case 5:
-          message.setDefaultIde = reader.string();
+          message.refererIde = reader.string();
           break;
         default:
           reader.skipType(tag & 7);
@@ -379,7 +380,7 @@ export const ResolveWorkspaceConfigResponse = {
       supervisorImage: isSet(object.supervisorImage) ? String(object.supervisorImage) : "",
       webImage: isSet(object.webImage) ? String(object.webImage) : "",
       ideImageLayers: Array.isArray(object?.ideImageLayers) ? object.ideImageLayers.map((e: any) => String(e)) : [],
-      setDefaultIde: isSet(object.setDefaultIde) ? String(object.setDefaultIde) : "",
+      refererIde: isSet(object.refererIde) ? String(object.refererIde) : "",
     };
   },
 
@@ -397,7 +398,7 @@ export const ResolveWorkspaceConfigResponse = {
     } else {
       obj.ideImageLayers = [];
     }
-    message.setDefaultIde !== undefined && (obj.setDefaultIde = message.setDefaultIde);
+    message.refererIde !== undefined && (obj.refererIde = message.refererIde);
     return obj;
   },
 
@@ -407,7 +408,7 @@ export const ResolveWorkspaceConfigResponse = {
     message.supervisorImage = object.supervisorImage ?? "";
     message.webImage = object.webImage ?? "";
     message.ideImageLayers = object.ideImageLayers?.map((e) => e) || [];
-    message.setDefaultIde = object.setDefaultIde ?? "";
+    message.refererIde = object.refererIde ?? "";
     return message;
   },
 };
