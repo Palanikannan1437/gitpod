@@ -272,7 +272,7 @@ func (s *IDEServiceServer) ResolveWorkspaceConfig(ctx context.Context, req *api.
 		return resp, nil
 	}
 
-	err = json.Unmarshal([]byte(req.WorkspaceConfig), &ideSettings)
+	err = json.Unmarshal([]byte(req.IdeSettings), &ideSettings)
 	if err != nil {
 		// todo(af): define default
 		log.WithError(err).Error("failed to parse ide settings")
