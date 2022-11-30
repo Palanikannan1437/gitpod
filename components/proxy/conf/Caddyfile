@@ -1,9 +1,6 @@
 {
 	# disable automatic SSL certificate generation
 	auto_https off
-	# disable admin API server
-	# admin localhost:2019
-	admin off
 
 	# set default SNI for old clients
 	default_sni {$GITPOD_DOMAIN}
