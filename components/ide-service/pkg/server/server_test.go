@@ -14,7 +14,7 @@ import (
 	"github.com/gitpod-io/gitpod/ide-service-api/config"
 )
 
-func TestResolveStartWorkspaceSpec(t *testing.T) {
+func TestResolveWorkspaceConfig(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
@@ -24,7 +24,7 @@ func TestResolveStartWorkspaceSpec(t *testing.T) {
 	}
 	server := New(cfg)
 	server.readIDEConfig(ctx, true)
-	resp, err := server.ResolveStartWorkspaceSpec(ctx, &api.ResolveStartWorkspaceSpecRequest{
+	resp, err := server.ResolveWorkspaceConfig(ctx, &api.ResolveWorkspaceConfigRequest{
 		Type: api.WorkspaceType_IMAGEBUILD,
 	})
 	if err != nil {
@@ -32,3 +32,119 @@ func TestResolveStartWorkspaceSpec(t *testing.T) {
 	}
 	t.Log(resp)
 }
+
+// TODO: migrate to fixture testing
+// describe("chooseIDE", async function () {
+// 	const baseOpt: IDEOption = {
+// 		title: "title",
+// 		type: "desktop",
+// 		logo: "",
+// 		image: "image",
+// 		latestImage: "latestImage",
+// 	};
+// 	const ideOptions: IDEOptions = {
+// 		options: {
+// 			code: Object.assign({}, baseOpt, { type: "browser" }),
+// 			goland: Object.assign({}, baseOpt),
+// 			"code-desktop": Object.assign({}, baseOpt),
+// 			"no-latest": Object.assign({}, baseOpt),
+// 		},
+// 		defaultIde: "code",
+// 		defaultDesktopIde: "code-desktop",
+// 	};
+// 	delete ideOptions.options["no-latest"].latestImage;
+
+// 	it("code with latest", function () {
+// 		const useLatest = true;
+// 		const hasPerm = false;
+// 		const result = chooseIDE("code", ideOptions, useLatest, hasPerm);
+// 		expect(result.ideImage).to.equal(ideOptions.options["code"].latestImage);
+// 	});
+
+// 	it("code without latest", function () {
+// 		const useLatest = false;
+// 		const hasPerm = false;
+// 		const result = chooseIDE("code", ideOptions, useLatest, hasPerm);
+// 		expect(result.ideImage).to.equal(ideOptions.options["code"].image);
+// 	});
+
+// 	it("desktop ide with latest", function () {
+// 		const useLatest = true;
+// 		const hasPerm = false;
+// 		const result = chooseIDE("code-desktop", ideOptions, useLatest, hasPerm);
+// 		expect(result.ideImage).to.equal(ideOptions.options["code"].latestImage);
+// 		expect(result.desktopIdeImage).to.equal(ideOptions.options["code-desktop"].latestImage);
+// 	});
+
+// 	it("desktop ide (JetBrains) without latest", function () {
+// 		const useLatest = false;
+// 		const hasPerm = false;
+// 		const result = chooseIDE("goland", ideOptions, useLatest, hasPerm);
+// 		expect(result.ideImage).to.equal(ideOptions.options["code"].image);
+// 		expect(result.desktopIdeImage).to.equal(ideOptions.options["goland"].image);
+// 	});
+
+// 	it("desktop ide with no latest image", function () {
+// 		const useLatest = true;
+// 		const hasPerm = false;
+// 		const result = chooseIDE("no-latest", ideOptions, useLatest, hasPerm);
+// 		expect(result.ideImage).to.equal(ideOptions.options["code"].latestImage);
+// 		expect(result.desktopIdeImage).to.equal(ideOptions.options["no-latest"].image);
+// 	});
+
+// 	it("unknown ide with custom permission should be unknown", function () {
+// 		const customOptions = Object.assign({}, ideOptions);
+// 		customOptions.options["unknown-custom"] = {
+// 			title: "unknown title",
+// 			type: "browser",
+// 			logo: "",
+// 			image: "",
+// 		};
+// 		const useLatest = true;
+// 		const hasPerm = true;
+// 		const result = chooseIDE("unknown-custom", customOptions, useLatest, hasPerm);
+// 		expect(result.ideImage).to.equal("unknown-custom");
+// 	});
+
+// 	it("unknown desktop ide with custom permission desktop should be unknown", function () {
+// 		const customOptions = Object.assign({}, ideOptions);
+// 		customOptions.options["unknown-custom"] = {
+// 			title: "unknown title",
+// 			type: "desktop",
+// 			logo: "",
+// 			image: "",
+// 		};
+// 		const useLatest = true;
+// 		const hasPerm = true;
+// 		const result = chooseIDE("unknown-custom", customOptions, useLatest, hasPerm);
+// 		expect(result.desktopIdeImage).to.equal("unknown-custom");
+// 	});
+
+// 	it("unknown browser ide without custom permission should fallback to code", function () {
+// 		const customOptions = Object.assign({}, ideOptions);
+// 		customOptions.options["unknown-custom"] = {
+// 			title: "unknown title",
+// 			type: "browser",
+// 			logo: "",
+// 			image: "",
+// 		};
+// 		const useLatest = true;
+// 		const hasPerm = false;
+// 		const result = chooseIDE("unknown-custom", customOptions, useLatest, hasPerm);
+// 		expect(result.ideImage).to.equal(ideOptions.options["code"].latestImage);
+// 	});
+
+// 	it("not exists ide with custom permission", function () {
+// 		const useLatest = true;
+// 		const hasPerm = true;
+// 		const result = chooseIDE("not-exists", ideOptions, useLatest, hasPerm);
+// 		expect(result.ideImage).to.equal(ideOptions.options["code"].latestImage);
+// 	});
+
+// 	it("not exists ide with custom permission", function () {
+// 		const useLatest = true;
+// 		const hasPerm = false;
+// 		const result = chooseIDE("not-exists", ideOptions, useLatest, hasPerm);
+// 		expect(result.ideImage).to.equal(ideOptions.options["code"].latestImage);
+// 	});
+// });

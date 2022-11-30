@@ -110,7 +110,6 @@ import * as path from "path";
 import * as grpc from "@grpc/grpc-js";
 import { IDEService } from "../ide-service";
 import * as IdeServiceApi from "@gitpod/ide-service-api/lib/ide.pb";
-import { IDEOption } from "@gitpod/gitpod-protocol/lib/ide-protocol";
 import { Deferred } from "@gitpod/gitpod-protocol/lib/util/deferred";
 import { ExtendedUser } from "@gitpod/ws-manager/lib/constraints";
 import {
