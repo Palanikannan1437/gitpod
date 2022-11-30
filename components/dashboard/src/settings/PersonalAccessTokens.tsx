@@ -19,6 +19,7 @@ import {
     settingsPathPersonalAccessTokenEdit,
 } from "./settings.routes";
 import arrowDown from "../images/sort-arrow.svg";
+import { ReactComponent as ExclamationIcon } from "../images/exclamation.svg";
 import { Timestamp } from "@bufbuild/protobuf";
 import Alert from "../components/Alert";
 import { InputWithCopy } from "../components/InputWithCopy";
@@ -417,12 +418,15 @@ interface TokenEntryProps {
 }
 
 function TokenEntry(props: TokenEntryProps) {
-    const getDate = () => {
+    const [dateInfo, setDateInfo] = useState<{ expired: boolean; content: string }>();
+
+    useEffect(() => {
         if (!props.token.expirationTime) {
-            return "";
+            setDateInfo({ expired: false, content: "" });
         }
-        return dayjs(props.token.expirationTime!.toDate()).format("MMM D, YYYY");
-    };
+        const tmp = dayjs(props.token.expirationTime!.toDate());
+        setDateInfo({ expired: tmp.isBefore(dayjs()), content: tmp.format("MMM D, YYYY") });
+    }, [props.token.expirationTime]);
 
     const getScopes = () => {
         if (!props.token.scopes) {
@@ -446,7 +450,12 @@ function TokenEntry(props: TokenEntryProps) {
                     <span className="truncate whitespace-pre-line">{getScopes()}</span>
                 </div>
                 <div className="flex items-center w-3/12 text-gray-400">
-                    <span className="truncate">{getDate()}</span>
+                    <span
+                        className={"flex items-center gap-1 truncate" + (dateInfo?.expired ? " text-orange-600" : "")}
+                    >
+                        <span>{dateInfo?.content}</span>
+                        {dateInfo?.expired && <ExclamationIcon fill="#D97706" className="h-4 w-4" />}
+                    </span>
                 </div>
                 <div className="flex items-center justify-end w-1/12">
                     <ItemFieldContextMenu menuEntries={props.menuEntries} />
