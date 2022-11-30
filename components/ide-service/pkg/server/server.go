@@ -249,9 +249,10 @@ func (s *IDEServiceServer) ResolveWorkspaceConfig(ctx context.Context, req *api.
 		SupervisorImage: s.ideConfig.SupervisorImage,
 	}
 
-	if req.Type != api.WorkspaceType_REGULAR {
-		return resp, nil
-	}
+	// TODO: reconsider this
+	// if req.Type != api.WorkspaceType_REGULAR {
+	// 	return resp, nil
+	// }
 
 	var wsConfig WorkspaceConfig
 	var wsContext WorkspaceContext
