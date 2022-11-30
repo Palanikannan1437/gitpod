@@ -12,25 +12,45 @@ import (
 	"github.com/gitpod-io/gitpod/common-go/baseserver"
 	api "github.com/gitpod-io/gitpod/ide-service-api"
 	"github.com/gitpod-io/gitpod/ide-service-api/config"
+
+	ctesting "github.com/gitpod-io/gitpod/common-go/testing"
 )
 
 func TestResolveWorkspaceConfig(t *testing.T) {
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
+	type fixture struct {
+		api.ResolveWorkspaceConfigRequest
+	}
+	type gold struct {
+		Resp *api.ResolveWorkspaceConfigResponse
+		Err  string
+	}
 
 	cfg := &config.ServiceConfiguration{
 		Server:        &baseserver.Configuration{},
 		IDEConfigPath: "../../example-ide-config.json",
 	}
 	server := New(cfg)
-	server.readIDEConfig(ctx, true)
-	resp, err := server.ResolveWorkspaceConfig(ctx, &api.ResolveWorkspaceConfigRequest{
-		Type: api.WorkspaceType_IMAGEBUILD,
-	})
-	if err != nil {
-		t.Fatal(err)
+	server.readIDEConfig(context.Background(), true)
+
+	test := ctesting.FixtureTest{
+		T:    t,
+		Path: "testdata/resolve_ws_config_*.json",
+		Test: func(t *testing.T, input any) interface{} {
+			fixture := input.(*fixture)
+
+			ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+			defer cancel()
+
+			resp, err := server.ResolveWorkspaceConfig(ctx, &fixture.ResolveWorkspaceConfigRequest)
+			if err != nil {
+				return &gold{Err: err.Error()}
+			}
+			return &gold{Resp: resp, Err: ""}
+		},
+		Fixture: func() interface{} { return &fixture{} },
+		Gold:    func() interface{} { return &gold{} },
 	}
-	t.Log(resp)
+	test.Run()
 }
 
 // TODO: migrate to fixture testing
