@@ -7,9 +7,8 @@
 import { DBWithTracing, MaybeWorkspaceInstance, WorkspaceDB } from "@gitpod/gitpod-db/lib";
 import { WorkspaceClassesConfig } from "./workspace-classes";
 import { PrebuiltWorkspace, User, Workspace, WorkspaceInstance, WorkspaceType } from "@gitpod/gitpod-protocol";
-import { IDEOption, IDEOptions } from "@gitpod/gitpod-protocol/lib/ide-protocol";
 import * as chai from "chai";
-import { migrationIDESettings, chooseIDE, getWorkspaceClassForInstance } from "./workspace-starter";
+import { migrationIDESettings, getWorkspaceClassForInstance } from "./workspace-starter";
 import { MockTracer } from "opentracing";
 import { CustomTracerOpts, TraceContext, TracingManager } from "@gitpod/gitpod-protocol/lib/util/tracing";
 import { JaegerTracer } from "jaeger-client";
